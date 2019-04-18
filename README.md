@@ -1,2 +1,2 @@
-# nesrs
+# NESRS
 Java bases NES emulator
