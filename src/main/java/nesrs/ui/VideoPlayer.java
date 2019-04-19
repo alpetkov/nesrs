@@ -16,12 +16,13 @@ public class VideoPlayer extends Canvas implements VideoOutListener {
 
    private final BufferedImage _frameBufferImage =
          new BufferedImage(NES_WIDTH, NES_HEIGHT, BufferedImage.TYPE_INT_RGB);
-   private final int scale = 2;
+   private final int _scale = 2;
+   private final boolean _debug = true;
 
    private long _lastFrameEnd = 0;
 
    public VideoPlayer() {
-      setSize(NES_WIDTH * scale, NES_HEIGHT * scale);
+      setSize(NES_WIDTH * _scale, NES_HEIGHT * _scale);
    }
 
    @Override
@@ -39,12 +40,12 @@ public class VideoPlayer extends Canvas implements VideoOutListener {
                _frameBufferImage,
                0,
                0,
-               NES_WIDTH * scale,
-               NES_HEIGHT * scale,
+               NES_WIDTH * _scale,
+               NES_HEIGHT * _scale,
                null);
 
          long currentFrameEnd = System.currentTimeMillis();
-         if (_lastFrameEnd != 0) {
+         if (_debug && _lastFrameEnd != 0) {
             long currentFrameDuration = currentFrameEnd - _lastFrameEnd;
             int fps = (int) (1000f / currentFrameDuration);
             graphics.setColor(Color.GREEN);

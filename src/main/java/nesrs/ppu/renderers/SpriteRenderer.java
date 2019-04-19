@@ -14,7 +14,7 @@ public class SpriteRenderer {
       int _tileDataHigh = 0x0; // 8 bits (8 pixels - 1 tile row pixels)
       int _attributePaletteData = 0x0; // 2 bits (for 8 pixels)
       boolean _isHighPriority = false;
-      int _xPosition = 0x0; // 8 bits X position on the screen
+      int _xPosition = 0x0; // 8 bits // X position on the screen
       boolean _isSpriteZero = false;
    }
 
@@ -22,7 +22,7 @@ public class SpriteRenderer {
    // Sprite memory bytes
    //
 
-   //  Attributes byte
+   //   Attributes byte
    //  76543210
    //  ||||||||
    //  ||||||++- Palette (4 to 7) of sprite
@@ -49,6 +49,7 @@ public class SpriteRenderer {
 
    // Sprite render pipeline
    private SpriteRenderPipeline[] _spriteRenderPipelineMemory = new SpriteRenderPipeline[8];
+
    private boolean _isSpriteZeroInRange = false;
 
    public SpriteRenderer(
@@ -121,7 +122,10 @@ public class SpriteRenderer {
 
       } else if (256 <= currentCycle && currentCycle <= 319) {
          // Fetch sprite data for next scanline
-         if (currentCycle == 260) { // if (currentCycle == 256) {
+//         if (currentCycle == 256) {
+//            fetchSpriteTileData(currentScanline);
+//         }
+         if (currentCycle == 260) {
             fetchSpriteTileData(currentScanline);
          }
       }
@@ -246,6 +250,7 @@ public class SpriteRenderer {
          int tileIndex = _sprTempMemory[spriteAddress + 1];
          int attributes = _sprTempMemory[spriteAddress + 2];
          int xPosition = _sprTempMemory[spriteAddress + 3];
+
 
          int fineY =
                currentScanline -

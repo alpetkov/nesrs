@@ -27,7 +27,7 @@ public class Nes implements Runnable {
    private final Apu _apu;
    private final Ppu _ppu;
 
-   private Thread t;
+   private Thread _nesThread;
 
    public Nes(byte[] rom, VideoOutListener videoOut, AudioOutListener audioOut,
          Controller controller1) {
@@ -70,9 +70,9 @@ public class Nes implements Runnable {
 
          _state = State.STARTED;
 
-         t = new Thread(this);
-         t.setDaemon(true);
-         t.start();
+         _nesThread = new Thread(this);
+         _nesThread.setDaemon(true);
+         _nesThread.start();
       }
    }
 

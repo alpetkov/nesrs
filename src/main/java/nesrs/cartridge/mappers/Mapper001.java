@@ -3,6 +3,9 @@ package nesrs.cartridge.mappers;
 import nesrs.cartridge.CartridgeMemory;
 import nesrs.cartridge.NameTableMirroring.NameTableMirroringType;
 
+/**
+ * MMC1
+ */
 public class Mapper001 extends BaseMapper {
 
    private int _shiftRegister;

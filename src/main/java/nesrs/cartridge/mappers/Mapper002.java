@@ -2,6 +2,9 @@ package nesrs.cartridge.mappers;
 
 import nesrs.cartridge.CartridgeMemory;
 
+/**
+ * UxROM
+ */
 public class Mapper002 extends BaseMapper {
 
    public Mapper002(CartridgeMemory cartridgeMemory) {
@@ -20,11 +23,12 @@ public class Mapper002 extends BaseMapper {
          int bankNumber = (value & 0x0F);
          int bankNumberIndex = bankNumber * 16;
          for (int i = 0; i < 16; i++) {
-            _prgRomMap[i] = bankNumberIndex & (_cartridgeMemory.prgRom.length - 1);
+            _prgRomMap[i] = (bankNumberIndex + i) & (_cartridgeMemory.prgRom.length - 1);
          }
 
-       } else {
+      } else {
          super.writePrgMemory(cpuAddress, value);
       }
    }
 }
+

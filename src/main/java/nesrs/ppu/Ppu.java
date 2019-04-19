@@ -3,7 +3,6 @@ package nesrs.ppu;
 import java.util.Arrays;
 
 import nesrs.cartridge.Cartridge;
-import nesrs.cartridge.CartridgeMemory;
 import nesrs.ppu.registers.CtrlRegister;
 import nesrs.ppu.registers.MaskRegister;
 import nesrs.ppu.registers.SpriteRamAddressRegister;
@@ -490,48 +489,5 @@ public class Ppu implements PpuPin {
 
    private boolean isRenderingEnabled() {
       return _maskReg.isBackgroundVisibilityEnabled() || _maskReg.isSpriteVisibilityEnabled();
-   }
-
-   public int[][][] getPatternTables() {
-      int[][] patternTable1 = getPatternTable(_memory.getCartridgeMemory(), 0);
-      int[][] patternTable2 = getPatternTable(_memory.getCartridgeMemory(), 1);
-      int[][] patternTable3 = getPatternTable(_memory.getCartridgeMemory(), 2);
-      int[][] patternTable4 = getPatternTable(_memory.getCartridgeMemory(), 3);
-
-      return new int[][][] { patternTable1, patternTable2, patternTable3, patternTable4 };
-   }
-
-   private int[][] getPatternTable(CartridgeMemory cartridgeMemory, int bankGroup) {
-      int[][] tiles = new int[8 * 16][8 * 16];
-      for (int tileIndex = 0; tileIndex < 256; tileIndex++) {
-
-         for (int fineY = 0; fineY < 8; fineY++) {
-
-            int tileDataLowAddress = (tileIndex % 64) * 16 + fineY;
-            int tileDataLow = cartridgeMemory.chrMem[bankGroup * 4 + (tileIndex / 64)][tileDataLowAddress];
-            int tileDataHigh = cartridgeMemory.chrMem[bankGroup * 4 + (tileIndex / 64)][tileDataLowAddress + 8];
-
-            for (int fineX = 0; fineX < 8; fineX++) {
-               int bitPosition = 1 << (7 - fineX);
-
-               int tilePaletteDataLowBit = (tileDataLow & bitPosition) != 0 ? 1 : 0;
-               int tilePaletteDataHighBit = (tileDataHigh & bitPosition) != 0 ? 1 : 0;
-               int paletteIndex =
-                     ((tilePaletteDataHighBit << 1) | tilePaletteDataLowBit) & 0xF;
-
-               if (paletteIndex == 0x04 || paletteIndex == 0x08 || paletteIndex == 0x0C) {
-                  paletteIndex = 0x00;
-               }
-
-               int paletteAddress = 0x3F00 | (paletteIndex & 0x1F);
-               int colorIndex = _memory.readMemory(paletteAddress);
-               int rgb = Palette.RGB[colorIndex];
-
-               tiles[(tileIndex / 16) * 8 + fineY][(tileIndex % 16) * 8 + fineX] = rgb;
-            }
-         }
-      }
-
-      return tiles;
    }
 }
