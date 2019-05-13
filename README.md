@@ -1,2 +1,2 @@
 # NESRS
-Java bases NES emulator
+NES emulator written in Java
