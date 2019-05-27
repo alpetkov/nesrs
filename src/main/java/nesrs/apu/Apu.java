@@ -33,23 +33,23 @@ public class Apu implements ApuPin {
       }
    }
 
-	private final RectangleWaveChannel _rectangleWaveChannel1;
-	private final RectangleWaveChannel _rectangleWaveChannel2;
-	private final TriangleWaveChannel _triangleWaveChannel;
-	private final RandomWaveChannel _randomWaveChannel;
-	private final DeltaModulationChannel _deltaModulationChannel;
+   private final RectangleWaveChannel _rectangleWaveChannel1;
+   private final RectangleWaveChannel _rectangleWaveChannel2;
+   private final TriangleWaveChannel _triangleWaveChannel;
+   private final RandomWaveChannel _randomWaveChannel;
+   private final DeltaModulationChannel _deltaModulationChannel;
 
-	private final FrameSequencer _frameSequencer;
+   private final FrameSequencer _frameSequencer;
 
    private AudioOutListener _audioOutListener;
-	private IrqListener _irqListener;
+   private IrqListener _irqListener;
 
-	// Work
-	private int _currentCycleInSample = 0;
+   // Work
+   private int _currentCycleInSample = 0;
 
-	// Audio out
-	private final byte[] _audioBuffer = new byte[1024*2];
-	private int _audioBufferIndex = 0;
+   // Audio out
+   private final byte[] _audioBuffer = new byte[1024*2];
+   private int _audioBufferIndex = 0;
 
    public Apu(CpuMemory cpuMemory) {
       _rectangleWaveChannel1 = new RectangleWaveChannel(false);
@@ -133,40 +133,40 @@ public class Apu implements ApuPin {
       }
    }
 
-	@Override
-	public int readRegister(int register) {
-	   if (register == 0x4015) {
-	      int dmcIrqFlag = _deltaModulationChannel.getIrqStatus() ? 0x80 : 0;
-	      int frameIrqFlag = _frameSequencer.getIrqStatus() ? 0x40 : 0;
-	      int dmcStatusFlag = _deltaModulationChannel.getSampleBytesRemainCounter() > 0 ? 0x10 : 0;
-	      int randomStatusFlag = _randomWaveChannel.getLengthCounterCount() > 0 ? 0x08 : 0;
-	      int triangleStatusFlag = _triangleWaveChannel.getLengthCounterCount() > 0 ? 0x04 : 0;
-	      int rectangle2StatusFLag = _rectangleWaveChannel2.getLengthCounterCount() > 0 ? 0x02 : 0;
-	      int rectangle1StatusFlag = _rectangleWaveChannel1.getLengthCounterCount() > 0 ? 0x01 : 0;
+   @Override
+   public int readRegister(int register) {
+      if (register == 0x4015) {
+         int dmcIrqFlag = _deltaModulationChannel.getIrqStatus() ? 0x80 : 0;
+         int frameIrqFlag = _frameSequencer.getIrqStatus() ? 0x40 : 0;
+         int dmcStatusFlag = _deltaModulationChannel.getSampleBytesRemainCounter() > 0 ? 0x10 : 0;
+         int randomStatusFlag = _randomWaveChannel.getLengthCounterCount() > 0 ? 0x08 : 0;
+         int triangleStatusFlag = _triangleWaveChannel.getLengthCounterCount() > 0 ? 0x04 : 0;
+         int rectangle2StatusFLag = _rectangleWaveChannel2.getLengthCounterCount() > 0 ? 0x02 : 0;
+         int rectangle1StatusFlag = _rectangleWaveChannel1.getLengthCounterCount() > 0 ? 0x01 : 0;
 
-	      _frameSequencer.resetIrqStatus();
+         _frameSequencer.resetIrqStatus();
 
-	      return (dmcIrqFlag |
-	            frameIrqFlag |
-	            dmcStatusFlag |
-	            randomStatusFlag |
-	            triangleStatusFlag |
-	            rectangle2StatusFLag |
-	            rectangle1StatusFlag);
-	   }
+         return (dmcIrqFlag |
+               frameIrqFlag |
+               dmcStatusFlag |
+               randomStatusFlag |
+               triangleStatusFlag |
+               rectangle2StatusFLag |
+               rectangle1StatusFlag);
+      }
 
-		return 0;
-	}
+      return 0;
+   }
 
-	@Override
-	public void writeRegister(int register, int value) {
+   @Override
+   public void writeRegister(int register, int value) {
 
-	   switch (register) {
-	      // Rectangle wave 1
-	      case 0x4000: {
-	         _rectangleWaveChannel1.writeControlRegister(value);
-	         break;
-	      }
+      switch (register) {
+         // Rectangle wave 1
+         case 0x4000: {
+            _rectangleWaveChannel1.writeControlRegister(value);
+            break;
+         }
          case 0x4001: {
             _rectangleWaveChannel1.writeSweepUnitRegister(value);
             break;
@@ -271,5 +271,5 @@ public class Apu implements ApuPin {
          default:
             break;
       }
-	}
+   }
 }

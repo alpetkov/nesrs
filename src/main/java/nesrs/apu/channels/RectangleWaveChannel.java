@@ -20,12 +20,12 @@ public class RectangleWaveChannel {
       {1, 0, 0, 1, 1, 1, 1, 1}, // 75%
    };
 
-	private VolumeEnvelopeDecayUnit _volumeEnvelopeDecayUnit;
+   private VolumeEnvelopeDecayUnit _volumeEnvelopeDecayUnit;
    private FrequencySweepUnit _sweepUnit;
-	private int _timerRawPeriod;
-	private Timer _timer;
-	private Sequencer _dutyCycleSequencer;
-	private LengthCounter _lengthCounter;
+   private int _timerRawPeriod;
+   private Timer _timer;
+   private Sequencer _dutyCycleSequencer;
+   private LengthCounter _lengthCounter;
 
    public RectangleWaveChannel() {
       this(false);
@@ -40,45 +40,45 @@ public class RectangleWaveChannel {
       _lengthCounter = new LengthCounter();
    }
 
-	public void writeControlRegister(int value) {
-	   int dutyCycleType = ((value & 0xC0) >> 6);
-	   _dutyCycleSequencer.setSequence(DUTY_CYCLES[dutyCycleType]);
+   public void writeControlRegister(int value) {
+      int dutyCycleType = ((value & 0xC0) >> 6);
+      _dutyCycleSequencer.setSequence(DUTY_CYCLES[dutyCycleType]);
 
-	   _lengthCounter.setHalted((value & 0x20) != 0);
+      _lengthCounter.setHalted((value & 0x20) != 0);
 
-	   boolean envelopLoopingEnabled = (value & 0x20) != 0;
-	   boolean envelopDisabled = (value & 0x10) != 0;
-	   int envelopVolume = (value & 0x0F);
-	   _volumeEnvelopeDecayUnit.write(envelopLoopingEnabled, envelopDisabled, envelopVolume);
-	}
-
-	public void writeSweepUnitRegister(int value) {
-	   _sweepUnit.write(value);
+      boolean envelopLoopingEnabled = (value & 0x20) != 0;
+      boolean envelopDisabled = (value & 0x10) != 0;
+      int envelopVolume = (value & 0x0F);
+      _volumeEnvelopeDecayUnit.write(envelopLoopingEnabled, envelopDisabled, envelopVolume);
    }
 
-	public void writeFineTuneRegister(int value) {
-	   _timerRawPeriod = (_timerRawPeriod & 0x0700) | value;
-	   _timer.setPeriod((_timerRawPeriod + 1) << 1);
-	}
+   public void writeSweepUnitRegister(int value) {
+      _sweepUnit.write(value);
+   }
 
-	public void writeCoarseTuneRegister(int value) {
-	   _lengthCounter.setCount(value >> 3);
+   public void writeFineTuneRegister(int value) {
+      _timerRawPeriod = (_timerRawPeriod & 0x0700) | value;
+      _timer.setPeriod((_timerRawPeriod + 1) << 1);
+   }
 
-	   _timerRawPeriod = ((value << 8) & 0x0700) | (_timerRawPeriod & 0x00FF);
-	   _timer.setPeriod((_timerRawPeriod + 1) << 1);
+   public void writeCoarseTuneRegister(int value) {
+      _lengthCounter.setCount(value >> 3);
 
-	   _dutyCycleSequencer.reset();
+      _timerRawPeriod = ((value << 8) & 0x0700) | (_timerRawPeriod & 0x00FF);
+      _timer.setPeriod((_timerRawPeriod + 1) << 1);
 
-	   _volumeEnvelopeDecayUnit.setDirty();
-	}
+      _dutyCycleSequencer.reset();
 
-	public void setLengthCounterEnabled(boolean isEnabled) {
-	   _lengthCounter.setEnabled(isEnabled);
-	}
+      _volumeEnvelopeDecayUnit.setDirty();
+   }
 
-	public int getLengthCounterCount() {
-	   return _lengthCounter.getCount();
-	}
+   public void setLengthCounterEnabled(boolean isEnabled) {
+      _lengthCounter.setEnabled(isEnabled);
+   }
+
+   public int getLengthCounterCount() {
+      return _lengthCounter.getCount();
+   }
 
    public int getDac() {
       if (_lengthCounter.getCount() == 0) {
@@ -96,27 +96,27 @@ public class RectangleWaveChannel {
       return _volumeEnvelopeDecayUnit.getVolume();
    }
 
-	public void clockTimer() {
-	   boolean shouldOutputClock = _timer.clock();
-	   if (shouldOutputClock) {
-	      _dutyCycleSequencer.clock();
-	   }
-	}
+   public void clockTimer() {
+      boolean shouldOutputClock = _timer.clock();
+      if (shouldOutputClock) {
+         _dutyCycleSequencer.clock();
+      }
+   }
 
-	public void clockLengthCounterAndSweepUnit() {
-	   _lengthCounter.clock();
+   public void clockLengthCounterAndSweepUnit() {
+      _lengthCounter.clock();
 
-	   _sweepUnit.clock(_timerRawPeriod);
-	   ClockStatus sweepClockStatus = _sweepUnit.getStatus();
-	   if (sweepClockStatus.shouldChangeChannelTimerRawPeriod) {
-	      _timerRawPeriod = sweepClockStatus.newTimerRawPeriod;
-	      _timer.setPeriod((_timerRawPeriod + 1) << 1);
-	   }
-	}
+      _sweepUnit.clock(_timerRawPeriod);
+      ClockStatus sweepClockStatus = _sweepUnit.getStatus();
+      if (sweepClockStatus.shouldChangeChannelTimerRawPeriod) {
+         _timerRawPeriod = sweepClockStatus.newTimerRawPeriod;
+         _timer.setPeriod((_timerRawPeriod + 1) << 1);
+      }
+   }
 
-	public void clockEnvelope() {
-	   _volumeEnvelopeDecayUnit.clock();
-	}
+   public void clockEnvelope() {
+      _volumeEnvelopeDecayUnit.clock();
+   }
 
    /*package*/ int getChannelPeriod() {
       return _timerRawPeriod;

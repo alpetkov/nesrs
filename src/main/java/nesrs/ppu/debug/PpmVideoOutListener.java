@@ -1,11 +1,11 @@
-package nesrs.ppu;
+package nesrs.ppu.debug;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import nesrs.util.PpmUtil;
+import nesrs.ppu.VideoOutListener;
 
 public class PpmVideoOutListener implements VideoOutListener {
    private int NES_HEIGHT = 240;

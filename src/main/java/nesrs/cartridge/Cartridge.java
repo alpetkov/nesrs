@@ -56,8 +56,6 @@ public class Cartridge implements CartridgePin {
    }
 
    private static Mapper buildMapper(int mapperNumber, CartridgeMemory cartridgeMemory) {
-      System.out.println("MAPPER " + mapperNumber);
-
       if (mapperNumber == 0) {
          return new Mapper000(cartridgeMemory);
 

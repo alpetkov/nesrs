@@ -8,7 +8,7 @@ import java.io.InputStream;
 import org.junit.Assert;
 
 import nesrs.Nes;
-import nesrs.ppu.PpmVideoOutListener;
+import nesrs.ppu.debug.PpmVideoOutListener;
 import nesrs.util.Util;
 
 public abstract class AbstractRomTest {
@@ -63,18 +63,6 @@ public abstract class AbstractRomTest {
       }
       return os.toByteArray();
    }
-
-//   private static Cartridge buildCartridge(String romPath) throws IOException {
-//      InputStream in = AbstractRomTest.class.getResourceAsStream(romPath);
-//
-//      INesRomCartridgeReader reader = new INesRomCartridgeReader(in);
-//
-//      try {
-//         return reader.readCartridge();
-//      } finally {
-//         in.close();
-//      }
-//   }
 
    private static byte[] buildCartridge(String romPath) throws IOException {
       try (InputStream in = AbstractRomTest.class.getResourceAsStream(romPath)) {

@@ -52,7 +52,7 @@ public class NesCpuMemory implements CpuMemory {
    @Override
    public int readCpuMemory(int address) {
       int page = address & 0xF000;
-      
+
       if (page == 0x0000 || page == 0x1000) {
          // RAM
          return _ram[address & 0x07FF];
@@ -90,15 +90,15 @@ public class NesCpuMemory implements CpuMemory {
                return _cartridge.readPrgMemory(address);
             }
          }
-         
+
       } else {
          // Cartridge
-         
+
          if (_cartridge != null) {
             return _cartridge.readPrgMemory(address);
          }
       }
-      
+
       return 0;
    }
 
@@ -112,7 +112,7 @@ public class NesCpuMemory implements CpuMemory {
 
       } else if (page == 0x2000 || page == 0x3000) {
          // PPU
-         
+
          if (_ppu != null) {
             _ppu.writeRegister(address & 0x0007, value);
          }
@@ -159,14 +159,14 @@ public class NesCpuMemory implements CpuMemory {
                _cartridge.writePrgMemory(address, value);
             }
          }
-         
+
       } else {
          // Cartridge
          if (_cartridge != null) {
             _cartridge.writePrgMemory(address, value);
          }
       }
-      
+
       return 0;
    }
 }

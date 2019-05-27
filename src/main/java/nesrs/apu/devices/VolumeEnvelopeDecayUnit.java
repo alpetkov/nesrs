@@ -6,14 +6,14 @@ package nesrs.apu.devices;
  */
 public class VolumeEnvelopeDecayUnit {
 
-	private boolean _isLoopingEnabled;
-	private boolean _isDisabled;
-	private int _volume;
+   private boolean _isLoopingEnabled;
+   private boolean _isDisabled;
+   private int _volume;
 
-	private Divider _divider;
-	private int _counter;
+   private Divider _divider;
+   private int _counter;
 
-	private boolean _writeFlag;
+   private boolean _writeFlag;
 
    public VolumeEnvelopeDecayUnit() {
       _divider = new Divider(0);

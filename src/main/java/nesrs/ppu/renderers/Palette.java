@@ -1,8 +1,8 @@
 package nesrs.ppu.renderers;
 
 public class Palette {
-	public static final int[] RGB = new int[] {
-	/*              0         1         2         3         4         5         6         7         8         9         A         B         C         D         E         F*/
+   public static final int[] RGB = new int[] {
+   /*              0         1         2         3         4         5         6         7         8         9         A         B         C         D         E         F*/
    /*0x00*/ 0x545454, 0x001E74, 0x081090, 0x300088, 0x440064, 0x5C0030, 0x540400, 0x3C1800, 0x202A00, 0x083A00, 0x004000, 0x003C00, 0x00323C, 0x000000, 0x000000, 0x000000,
    /*0x10*/ 0x989698, 0x084CC4, 0x3032EC, 0x5C1EE4, 0x8814B0, 0xA01464, 0x982220, 0x783C00, 0x545A00, 0x287200, 0x087C00, 0x007628, 0x006678, 0x000000, 0x000000, 0x000000,
    /*0x20*/ 0xECEEEC, 0x4C9AEC, 0x787CEC, 0xB062EC, 0xE454EC, 0xEC58B4, 0xEC6A64, 0xD48820, 0xA0AA00, 0x74C400, 0x4CD020, 0x38CC6C, 0x38B4CC, 0x3C3C3C, 0x000000, 0x000000,
