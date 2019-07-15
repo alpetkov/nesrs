@@ -25,15 +25,23 @@ public class CtrlRegister {
 
    public int value;
 
-   public boolean isExecNmiOnVblEnabled() {
+   public final boolean isExecNmiOnVblEnabled() {
       return (value & EXEC_NMI_ON_VBLANK) != 0;
    }
 
-   public void setExecNmiOnVblEnabled(boolean enabled) {
+   public final void setExecNmiOnVblEnabled(boolean enabled) {
       if (enabled) {
          value |= EXEC_NMI_ON_VBLANK;
       } else {
          value &= ~EXEC_NMI_ON_VBLANK;
       }
+   }
+   
+   public final int getBackgroundPatternTableAddress() {
+      return ((value & BACKGROUND_PATTERN_TABLE_ADDR) != 0) ? 0x1000 : 0x0000;
+   }
+   
+   public final boolean is16PixelsSprite() {
+      return (value & CtrlRegister.SPRITE_SIZE) != 0;
    }
 }

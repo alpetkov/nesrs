@@ -19,6 +19,8 @@ public class AudioPlayer implements AudioOutListener, AutoCloseable {
          true, /*AudioFormat.Encoding.PCM_SIGNED*/
          Apu.BIG_ENDIAN);
 
+   private byte[] _audioSamples = new byte[735*2];
+   
    private SourceDataLine _sdl;
 
    public AudioPlayer() throws LineUnavailableException {
@@ -30,7 +32,12 @@ public class AudioPlayer implements AudioOutListener, AutoCloseable {
 
    @Override
    public void handleSamples(byte[] audioSamples) {
-      _sdl.write(audioSamples, 0, audioSamples.length);
+      _audioSamples = audioSamples;
+   }
+
+   @Override
+   public void render() {
+      _sdl.write(_audioSamples, 0, _audioSamples.length);
    }
 
    @Override

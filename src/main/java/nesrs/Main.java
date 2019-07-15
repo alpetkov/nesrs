@@ -34,12 +34,12 @@ public class Main {
          window.setLayout(new FlowLayout());
 
          // Create video player
-         VideoPlayer videoPlayer = new VideoPlayer();
+         VideoPlayer videoPlayer = new VideoPlayer(true);
          videoPlayer.setEnabled(false);
          window.add(videoPlayer);
 
          // Controller 1
-         StandardController controller1 = new StandardController();
+         StandardController controller1 = new StandardController(true);
          window.addKeyListener(new StandardControllerKeyListener(controller1));
 
          // Show window
@@ -51,8 +51,8 @@ public class Main {
          videoPlayer.createBufferStrategy(2);
 
          // Create audio player.
-//         AudioPlayer audioPlayer = new AudioPlayer();
-         AudioPlayer audioPlayer = null;
+         AudioPlayer audioPlayer = new AudioPlayer();
+//         AudioPlayer audioPlayer = null;
 
          // Start NES
          Nes nes = new Nes(nesRom, videoPlayer, audioPlayer, controller1);

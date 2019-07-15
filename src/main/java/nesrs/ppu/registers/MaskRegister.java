@@ -39,11 +39,26 @@ public class MaskRegister {
 
    public int value;
 
-   public boolean isBackgroundVisibilityEnabled() {
+   public final boolean isBackgroundVisibilityEnabled() {
       return (value & MaskRegister.BACKGROUND_VISIBILITY) != 0;
    }
 
-   public boolean isSpriteVisibilityEnabled() {
+   public final boolean isSpriteVisibilityEnabled() {
       return (value & MaskRegister.SPRITE_VISIBILITY) != 0;
    }
+   
+   public final boolean isRenderingEnabled() {
+      return (value & MaskRegister.BACKGROUND_VISIBILITY) != 0 ||
+            (value & MaskRegister.SPRITE_VISIBILITY) != 0;
+   }
+   
+   public final boolean isBackgroundClippingEnabled() {
+      return (value & MaskRegister.BACKGROUND_CLIPPING) == 0;
+   }
+   
+   public final boolean isSpriteClippingEnabled() {
+      return (value & MaskRegister.SPRITE_CLIPPING) == 0;
+   }
+
+
 }

@@ -14,20 +14,27 @@ public class StandardController implements Controller {
    }
 
    // CMOS 4021 shift register
-   private int _buttonsLatch = 0x00;
+   private int _buttonsReadLatch = 0x00;
 
    // Strobe control
    private boolean _strobe = false;
 
    // Buttons memory
-   private int _pressedButtons = 0x00;
+   private int _buttonsMemory = 0x00;
 
+   private int _pressedButtons = 0x00;
+   private boolean _captureButtonsStateExplicitly;
+   
+   public StandardController(boolean captureButtonsStateExplicitly) {
+      _captureButtonsStateExplicitly = captureButtonsStateExplicitly;
+   }
+   
    @Override
    public int read() {
-      int result = (_buttonsLatch & 0x80) != 0 ? 0x41 : 0x40;
+      int result = (_buttonsReadLatch & 0x80) != 0 ? 0x41 : 0x40;
 
       if (!_strobe) {
-         _buttonsLatch <<= 1;
+         _buttonsReadLatch <<= 1;
       }
 
       return result;
@@ -39,7 +46,16 @@ public class StandardController implements Controller {
 
       if (_strobe) {
          // Strobe. Grab buttons state from memory into the read latch
-         _buttonsLatch = _pressedButtons;
+         _buttonsReadLatch = _buttonsMemory;
+      }
+   }
+
+   @Override
+   public void captureState() {
+      _buttonsMemory = _pressedButtons;
+      
+      if (_strobe) {
+         _buttonsReadLatch = _buttonsMemory;
       }
    }
 
@@ -55,8 +71,8 @@ public class StandardController implements Controller {
          case Right: _pressedButtons |= 0x01; break;
       }
 
-      if (_strobe) {
-         _buttonsLatch = _pressedButtons;
+      if (!_captureButtonsStateExplicitly) {
+         captureState();
       }
    }
 
@@ -72,8 +88,8 @@ public class StandardController implements Controller {
          case Right: _pressedButtons &= ~0x01; break;
       }
 
-      if (_strobe) {
-         _buttonsLatch = _pressedButtons;
+      if (!_captureButtonsStateExplicitly) {
+         captureState();
       }
    }
 }

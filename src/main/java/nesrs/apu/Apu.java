@@ -13,7 +13,7 @@ public class Apu implements ApuPin {
    public static final int BIT_DEPTH = 16; // 16 bits per sample
    public static final int NUM_CHANNELS = 1; // Mono
    public static final boolean BIG_ENDIAN = true;
-   public static final int BUFFER_SIZE = 4096 * 2;
+   public static final int BUFFER_SIZE = 2048 * 2;
 
    private static int[] SQUARE_OUT_TABLE;
    private static int[] TND_OUT_TABLE;
@@ -48,7 +48,7 @@ public class Apu implements ApuPin {
    private int _currentCycleInSample = 0;
 
    // Audio out
-   private final byte[] _audioBuffer = new byte[1024*2];
+   private final byte[] _audioBuffer = new byte[735*2];
    private int _audioBufferIndex = 0;
 
    public Apu(CpuMemory cpuMemory) {
