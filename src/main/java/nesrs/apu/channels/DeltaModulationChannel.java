@@ -115,7 +115,7 @@ public class DeltaModulationChannel {
 
    private void dmaReaderFetchSampleToSampleBuffer() {
       if (_dmaReaderBytesRemainCounter > 0) {
-         _sampleBufferValue = _cpuMemory.readCpuMemory(_dmaReaderAddressCounter);
+         _sampleBufferValue = _cpuMemory.read(_dmaReaderAddressCounter);
 
          _sampleBufferEmptyFlag = false;
 

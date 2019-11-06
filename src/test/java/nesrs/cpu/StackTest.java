@@ -30,7 +30,7 @@ public class StackTest extends TestCase {
          int value = s;
          cpu.push(value);
          assertEquals(s - 1, cpu._S);
-         assertEquals(value, memory.readCpuMemory(0x0100 | s));
+         assertEquals(value, memory.read(0x0100 | s));
       }
       assertEquals(0, cpu._S);
       cpu.push(100);
@@ -38,7 +38,7 @@ public class StackTest extends TestCase {
          int value = s;
          cpu.push(value);
          assertEquals(s - 1, cpu._S);
-         assertEquals(value, memory.readCpuMemory(0x0100 | s));
+         assertEquals(value, memory.read(0x0100 | s));
       }
    }
 }

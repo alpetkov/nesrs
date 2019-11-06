@@ -287,7 +287,7 @@ public class SpriteRenderer {
             // Although there is no sprite, we need to do dummy fetch so that the address line
             // is available (for Mapper04 for example).
             int tileDataLowAddress = spritePatternTableAddress + tileIndex * 16 + 0;
-            _memory.readMemory(tileDataLowAddress);
+            _memory.read(tileDataLowAddress);
             //_memory.readMemory(tileDataLowAddress + 8);
 
             // No sprite
@@ -301,8 +301,8 @@ public class SpriteRenderer {
          } else {
 
             int tileDataLowAddress = spritePatternTableAddress + tileIndex * 16 + fineY;
-            spriteRenderData._tileDataLow = _memory.readMemory(tileDataLowAddress);
-            spriteRenderData._tileDataHigh = _memory.readMemory(tileDataLowAddress + 8);
+            spriteRenderData._tileDataLow = _memory.read(tileDataLowAddress);
+            spriteRenderData._tileDataHigh = _memory.read(tileDataLowAddress + 8);
             if ((attributes & SPR_ATTR_REVERT_HORIZONTALLY) != 0) {
                spriteRenderData._tileDataLow = BitUtil.reverseByte(spriteRenderData._tileDataLow);
                spriteRenderData._tileDataHigh = BitUtil.reverseByte(spriteRenderData._tileDataHigh);

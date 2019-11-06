@@ -44,4 +44,8 @@ public class CtrlRegister {
    public final boolean is16PixelsSprite() {
       return (value & CtrlRegister.SPRITE_SIZE) != 0;
    }
+   
+   public final int getVramAddressInc() {
+      return ((value & ADDR_INC) != 0) ? 32 : 1;
+   }
 }

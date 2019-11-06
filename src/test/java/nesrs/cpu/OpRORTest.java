@@ -25,7 +25,7 @@ public class OpRORTest  extends TestCase {
 
    @Test
    public void testROR() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x6A); // Op
+      memory.write(0x2001, 0x6A); // Op
 
       cpu._A = 0x11;
       cpu._P = cpu._P | Cpu.C_FLAG;

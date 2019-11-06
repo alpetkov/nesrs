@@ -25,8 +25,8 @@ public class PatternTablesDumper {
          for (int fineY = 0; fineY < 8; fineY++) {
 
             int tileDataLowAddress = patternTableAddress + tileIndex * 16 + fineY;
-            int tileDataLow = _memory.readMemory(tileDataLowAddress);
-            int tileDataHigh = _memory.readMemory(tileDataLowAddress + 8);
+            int tileDataLow = _memory.read(tileDataLowAddress);
+            int tileDataHigh = _memory.read(tileDataLowAddress + 8);
 
             for (int fineX = 0; fineX < 8; fineX++) {
                int bitPosition = 1 << (7 - fineX);
@@ -41,7 +41,7 @@ public class PatternTablesDumper {
                }
 
                int paletteAddress = 0x3F00 | (paletteIndex & 0x1F);
-               int colorIndex = _memory.readMemory(paletteAddress);
+               int colorIndex = _memory.read(paletteAddress);
                int rgb = Palette.RGB[colorIndex & 0x3F];
 
                tiles[(tileIndex / 16) * 8 + fineY][(tileIndex % 16) * 8 + fineX] = rgb;

@@ -26,8 +26,8 @@ public class OpANDTest extends TestCase {
 
    @Test
    public void testAND_IMM() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x29); // Op
-      memory.writeCpuMemory(0x2002, 0xC0);
+      memory.write(0x2001, 0x29); // Op
+      memory.write(0x2002, 0xC0);
 
       cpu._A = 0xB8;
       cpu._PC = 0x2001;
@@ -41,7 +41,7 @@ public class OpANDTest extends TestCase {
 
    @Test
    public void testAND_ZP() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x25); // Op
+      memory.write(0x2001, 0x25); // Op
       cpu._PC = 0x2001;
       cpu.executeOp();
       assertEquals(3, cpu.getOpCycles());
@@ -49,7 +49,7 @@ public class OpANDTest extends TestCase {
 
    @Test
    public void testAND_ZPX() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x35); // Op
+      memory.write(0x2001, 0x35); // Op
       cpu._PC = 0x2001;
       cpu.executeOp();
       assertEquals(4, cpu.getOpCycles());
@@ -57,7 +57,7 @@ public class OpANDTest extends TestCase {
 
    @Test
    public void testAND_ABS() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x2D); // Op
+      memory.write(0x2001, 0x2D); // Op
       cpu._PC = 0x2001;
       cpu.executeOp();
       assertEquals(4, cpu.getOpCycles());
@@ -65,7 +65,7 @@ public class OpANDTest extends TestCase {
 
    @Test
    public void testAND_ABSX() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x3D); // Op
+      memory.write(0x2001, 0x3D); // Op
       cpu._PC = 0x2001;
       cpu.executeOp();
       assertEquals(4, cpu.getOpCycles());
@@ -73,7 +73,7 @@ public class OpANDTest extends TestCase {
 
    @Test
    public void testAND_ABSY() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x39); // Op
+      memory.write(0x2001, 0x39); // Op
       cpu._PC = 0x2001;
       cpu.executeOp();
       assertEquals(4, cpu.getOpCycles());
@@ -81,7 +81,7 @@ public class OpANDTest extends TestCase {
 
    @Test
    public void testAND_IND_X() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x21); // Op
+      memory.write(0x2001, 0x21); // Op
       cpu._PC = 0x2001;
       cpu.executeOp();
       assertEquals(6, cpu.getOpCycles());
@@ -89,7 +89,7 @@ public class OpANDTest extends TestCase {
 
    @Test
    public void testAND_INDY() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x31); // Op
+      memory.write(0x2001, 0x31); // Op
       cpu._PC = 0x2001;
       cpu.executeOp();
       assertEquals(5, cpu.getOpCycles());

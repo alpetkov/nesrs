@@ -25,7 +25,7 @@ public class OpROLTest  extends TestCase {
 
    @Test
    public void testROL() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x2A); // Op
+      memory.write(0x2001, 0x2A); // Op
 
       cpu._A = 0x81;
       cpu._P = cpu._P | Cpu.C_FLAG;

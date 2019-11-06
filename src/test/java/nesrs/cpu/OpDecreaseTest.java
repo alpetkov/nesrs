@@ -25,21 +25,21 @@ public class OpDecreaseTest extends TestCase {
 
    @Test
    public void testDEC() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xC6); // Op
-      memory.writeCpuMemory(0x2002, 0x11);
-      memory.writeCpuMemory(0x0011, 0x8E);
+      memory.write(0x2001, 0xC6); // Op
+      memory.write(0x2002, 0x11);
+      memory.write(0x0011, 0x8E);
       cpu._PC = 0x2001;
       cpu.executeOp();
 
       assertEquals(5, cpu.getOpCycles());
-      assertEquals(0x8D, memory.readCpuMemory(0x0011));
+      assertEquals(0x8D, memory.read(0x0011));
       assertTrue((cpu._P & Cpu.N_FLAG) != 0);
       assertTrue((cpu._P & Cpu.Z_FLAG) == 0);
    }
 
    @Test
    public void testDEX() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xCA); // Op
+      memory.write(0x2001, 0xCA); // Op
 
       cpu._X = 0x8E;
       cpu._PC = 0x2001;
@@ -53,7 +53,7 @@ public class OpDecreaseTest extends TestCase {
 
    @Test
    public void testDEY() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x88); // Op
+      memory.write(0x2001, 0x88); // Op
 
       cpu._Y = 0x8E;
       cpu._PC = 0x2001;

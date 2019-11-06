@@ -17,37 +17,37 @@ public class Cartridge implements CartridgePin {
    }
 
    @Override
-   public void setIrqListener(IrqListener irqListener) {
+   public final void setIrqListener(IrqListener irqListener) {
       _mapper.setIrqListener(irqListener);
    }
 
    @Override
-   public int readPrgMemory(int cpuAddress) {
+   public final int readPrgMemory(int cpuAddress) {
       return _mapper.readPrgMemory(cpuAddress);
    }
 
    @Override
-   public void writePrgMemory(int cpuAddress, int value) {
+   public final void writePrgMemory(int cpuAddress, int value) {
       _mapper.writePrgMemory(cpuAddress, value);
    }
 
    @Override
-   public int readChrMemory(int ppuAddress) {
+   public final int readChrMemory(int ppuAddress) {
       return _mapper.readChrMemory(ppuAddress);
    }
 
    @Override
-   public void writeChrMemory(int ppuAddress, int value) {
+   public final void writeChrMemory(int ppuAddress, int value) {
       _mapper.writeChrMemory(ppuAddress, value);
    }
 
    @Override
-   public int readNameTable(int ppuAddress, int[][] ppuNTRAM) {
+   public final int readNameTable(int ppuAddress, int[][] ppuNTRAM) {
       return _mapper.readNameTable(ppuAddress, ppuNTRAM);
    }
 
    @Override
-   public void writeNameTable(int ppuAddress, int value, int[][] ppuNTRAM) {
+   public final void writeNameTable(int ppuAddress, int value, int[][] ppuNTRAM) {
       _mapper.writeNameTable(ppuAddress, value, ppuNTRAM);
    }
 

@@ -67,21 +67,15 @@ public abstract class BaseMapper implements Mapper {
 
    @Override
    public int readChrMemory(int ppuAddress) {
-      if (0x0000 <= ppuAddress && ppuAddress <= 0x1FFF) {
-         return _cartridgeMemory.chrMem[_chrMemMap[(ppuAddress & 0x1FFF) >> 10]] // 8
-                                       [ppuAddress & 0x03FF]; // 1KB
-      }
-
-      return 0;
+      return _cartridgeMemory.chrMem[_chrMemMap[(ppuAddress & 0x1FFF) >> 10]] // 8
+                                    [ppuAddress & 0x03FF]; // 1KB
    }
 
    @Override
    public void writeChrMemory(int ppuAddress, int value) {
-      if (0x0000 <= ppuAddress && ppuAddress <= 0x1FFF) {
-         if (_cartridgeMemory.isChrMemRam) {
-            _cartridgeMemory.chrMem[_chrMemMap[(ppuAddress & 0x1FFF) >> 10]] // 3 bits -> 0..7
-                                   [ppuAddress & 0x03FF] = value;
-         }
+      if (_cartridgeMemory.isChrMemRam) {
+         _cartridgeMemory.chrMem[_chrMemMap[(ppuAddress & 0x1FFF) >> 10]] // 3 bits -> 0..7
+                                [ppuAddress & 0x03FF] = value;
       }
    }
 

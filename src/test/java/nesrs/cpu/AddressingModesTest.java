@@ -27,9 +27,9 @@ public class AddressingModesTest extends TestCase {
 
    @Test
    public void testIMM() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x69); // Op
+      memory.write(0x2001, 0x69); // Op
 
-      memory.writeCpuMemory(0x2002, 0xC0);
+      memory.write(0x2002, 0xC0);
 
       cpu._A = 0xB8;
       cpu._PC = 0x2001;
@@ -41,10 +41,10 @@ public class AddressingModesTest extends TestCase {
 
    @Test
    public void testZP() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x65); // Op
+      memory.write(0x2001, 0x65); // Op
 
-      memory.writeCpuMemory(0x2002, 0x22);
-      memory.writeCpuMemory(0x0022, 0xC0);
+      memory.write(0x2002, 0x22);
+      memory.write(0x0022, 0xC0);
 
       cpu._A = 0xB8;
       cpu._PC = 0x2001;
@@ -56,10 +56,10 @@ public class AddressingModesTest extends TestCase {
 
    @Test
    public void testZPX() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x75); // Op
+      memory.write(0x2001, 0x75); // Op
 
-      memory.writeCpuMemory(0x2002, 0x22);
-      memory.writeCpuMemory(0x0027, 0xC0);
+      memory.write(0x2002, 0x22);
+      memory.write(0x0027, 0xC0);
 
       cpu._X = 0x05;
       cpu._A = 0xB8;
@@ -72,11 +72,11 @@ public class AddressingModesTest extends TestCase {
 
    @Test
    public void testABS() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x6D); // Op
+      memory.write(0x2001, 0x6D); // Op
 
-      memory.writeCpuMemory(0x2002, 0x22);
-      memory.writeCpuMemory(0x2003, 0x33);
-      memory.writeCpuMemory(0x3322, 0xC0);
+      memory.write(0x2002, 0x22);
+      memory.write(0x2003, 0x33);
+      memory.write(0x3322, 0xC0);
 
       cpu._A = 0xB8;
       cpu._PC = 0x2001;
@@ -88,10 +88,10 @@ public class AddressingModesTest extends TestCase {
 
    @Test
    public void testABSX() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x7D); // Op
-      memory.writeCpuMemory(0x2002, 0xF2);
-      memory.writeCpuMemory(0x2003, 0x33);
-      memory.writeCpuMemory(0x3401, 0xC0);
+      memory.write(0x2001, 0x7D); // Op
+      memory.write(0x2002, 0xF2);
+      memory.write(0x2003, 0x33);
+      memory.write(0x3401, 0xC0);
 
       cpu._X = 0x0F;
       cpu._A = 0xB8;
@@ -104,10 +104,10 @@ public class AddressingModesTest extends TestCase {
 
    @Test
    public void testABSY() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x79); // Op
-      memory.writeCpuMemory(0x2002, 0xF2);
-      memory.writeCpuMemory(0x2003, 0x33);
-      memory.writeCpuMemory(0x3401, 0xC0);
+      memory.write(0x2001, 0x79); // Op
+      memory.write(0x2002, 0xF2);
+      memory.write(0x2003, 0x33);
+      memory.write(0x3401, 0xC0);
 
       cpu._Y = 0x0F;
       cpu._A = 0xB8;
@@ -120,8 +120,8 @@ public class AddressingModesTest extends TestCase {
 
    @Test
    public void testRel() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x90); // Op
-      memory.writeCpuMemory(0x2002, 0x0F);
+      memory.write(0x2001, 0x90); // Op
+      memory.write(0x2002, 0x0F);
 
       cpu._P = cpu._P & ~Cpu.C_FLAG;
       cpu._PC = 0x2001;
@@ -133,11 +133,11 @@ public class AddressingModesTest extends TestCase {
 
    @Test
    public void testIND_X() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x61); // Op
-      memory.writeCpuMemory(0x2002, 0xF2);
-      memory.writeCpuMemory(0x00F7, 0x33);
-      memory.writeCpuMemory(0x00F8, 0x44);
-      memory.writeCpuMemory(0x4433, 0xC0);
+      memory.write(0x2001, 0x61); // Op
+      memory.write(0x2002, 0xF2);
+      memory.write(0x00F7, 0x33);
+      memory.write(0x00F8, 0x44);
+      memory.write(0x4433, 0xC0);
 
       cpu._X = 0x05;
       cpu._A = 0xB8;
@@ -150,11 +150,11 @@ public class AddressingModesTest extends TestCase {
 
    @Test
    public void testIND_Y() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x71); // Op
-      memory.writeCpuMemory(0x2002, 0xF2);
-      memory.writeCpuMemory(0x00F2, 0x33);
-      memory.writeCpuMemory(0x00F3, 0x44);
-      memory.writeCpuMemory(0x4438, 0xC0);
+      memory.write(0x2001, 0x71); // Op
+      memory.write(0x2002, 0xF2);
+      memory.write(0x00F2, 0x33);
+      memory.write(0x00F3, 0x44);
+      memory.write(0x4438, 0xC0);
 
       cpu._Y = 0x05;
       cpu._A = 0xB8;

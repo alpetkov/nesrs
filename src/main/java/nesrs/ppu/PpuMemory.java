@@ -6,7 +6,7 @@ import nesrs.cartridge.CartridgeMemory;
 public class PpuMemory {
    // PPU addressable memory (16Kb)
 
-   // $4000 - $FFFF  49152   bytes    Mirror of $0000 - $3FFF
+   // $4000 - $FFFF  49152   bytes   Mirror of $0000 - $3FFF
    // $3F20 - $3FFF    224   bytes   Mirror of Background + Sprite Palettes ($3F00-$3F1F)
    // $3F10 - $3F1F     16   bytes   Sprite Palette
    // $3F00 - $3F0F     16   bytes   Background Palette
@@ -26,8 +26,7 @@ public class PpuMemory {
    // Name table B (960b) + Attribute table B (64b) = 1024b
    private int[][] _ntVRAM = new int[2][1024]; // Name table VRAM (A + B)(2Kb) (aka CIRAM)
 
-   private int[] _backgroundPaletteRAM = new int[16]; // Background Palette RAM (16b)
-   private int[] _spritePaletteRAM = new int[16]; // Sprite Palette RAM (16b)
+   int[] _paletteRAM = new int[32]; // Background (16b) + Sprite (16b) Palette RAM.
 
    private Cartridge _cartridge;
 
@@ -35,72 +34,72 @@ public class PpuMemory {
       _cartridge = cartridge;
    }
 
-   public int readMemory(int address) {
+   public final int[] readTile(int address) {
+      int decodedAddress = address & 0x3FFF; // Size Mirroring 
+
+      int tileDataLow = _cartridge.readChrMemory(decodedAddress);
+      int tileDataHigh = _cartridge.readChrMemory(decodedAddress + 8);
+      
+      return new int[] { tileDataLow, tileDataHigh };
+   }
+   
+   public final int read(int address) {
       int decodedAddress = decodeAddress(address);
 
-      if (0 <= decodedAddress && decodedAddress <= 0x1FFF) {
+      int bucket = (decodedAddress & 0x3000) >> 12;
+      switch (bucket) {
+      case 0:
+         // CHR ROM/RAM
+      case 1:
          // CHR ROM/RAM
          return _cartridge.readChrMemory(decodedAddress);
-
-      } else if (0x2000 <= decodedAddress && decodedAddress < 0x3000) {
+      case 2:
          // Name table
          return _cartridge.readNameTable(decodedAddress, _ntVRAM);
-
-      } else if (0x3F00 <= decodedAddress && decodedAddress <= 0x3F0F) {
-         // Background Palette
-         return _backgroundPaletteRAM[decodedAddress & 0x000F];
-
-      } else if (0x3F10 <= decodedAddress && decodedAddress <= 0x3F1F) {
-         // Sprite Palette
-         return _spritePaletteRAM[decodedAddress & 0x000F];
+      case 3:
+         // Palette
+         return _paletteRAM[decodedAddress & 0x1F];
       }
 
       return 0;
    }
 
-   public void writeMemory(int address, int value) {
+   public final void write(int address, int value) {
       int decodedAddress = decodeAddress(address);
 
-      if (0 <= decodedAddress && decodedAddress <= 0x1FFF) {
+      int bucket = (decodedAddress & 0x3000) >> 12;
+      switch (bucket) {
+      case 0:
+         // CHR ROM/RAM
+      case 1:
          // CHR ROM/RAM
          _cartridge.writeChrMemory(decodedAddress, value);
-
-      } else if (0x2000 <= decodedAddress && decodedAddress <= 0x2FFF) {
+         break;
+      case 2:
          // Name table
          _cartridge.writeNameTable(decodedAddress, value, _ntVRAM);
-
-      } else if (0x3F00 <= decodedAddress && decodedAddress <= 0x3F0F) {
-         // Background Palette
-         _backgroundPaletteRAM[decodedAddress & 0x000F] = value;
-
-      } else if (0x3F10 <= decodedAddress && decodedAddress <= 0x3F1F) {
-         // Sprite Palette
-         _spritePaletteRAM[decodedAddress & 0x000F] = value;
+         break;
+      case 3:
+         // Palette
+         _paletteRAM[decodedAddress & 0x1F] = value;
       }
    }
 
-   public void initNtRam() {
+   public final void initNtRam() {
       for (int i = 0; i < _ntVRAM[0].length; i++) {
          _ntVRAM[0][i] = 0x00;
          _ntVRAM[1][i] = 0x00;
       }
    }
 
-   /*package*/ int decodeAddress(int address) {
+   /*package*/ static int decodeAddress(int address) {
       // Size Mirroring
       address = address & 0x3FFF;
 
-      // Name tables & palette size mirroring
-      if (0x3000 <= address && address <= 0x3EFF) {
-         // Mirror of Name Tables (0x2000 - 0x2EFF)
-         address = 0x2000 | (address & 0x0FFF);
-
-      } else if (0x3F20 <= address && address <= 0x3FFF) {
+      if ((address & 0x3F00) == 0x3F00) {
          // Mirror of Background + Sprite Palettes ($3F00-$3F1F)
-         address = 0x3F00 | (address % 0x20);
-      }
-
-      if (0x3F00 <= address && address <= 0x3F1F) {
+         address = address & 0x3F1F;
+         
          // Background + Sprite Palettes Mirroring
          // Addresses $3F10/$3F14/$3F18/$3F1C are mirrors of $3F00/$3F04/$3F08/$3F0C.
          switch (address) {
@@ -109,6 +108,10 @@ public class PpuMemory {
             case 0x3F18: address = 0x3F08; break;
             case 0x3F1C: address = 0x3F0C; break;
          }
+
+      } else if ((address & 0x3000) == 0x3000) {
+         // Mirror of Name Tables (0x2000 - 0x2EFF)
+         address = 0x2000 | (address & 0x0FFF);
       }
 
       return address;
@@ -118,3 +121,4 @@ public class PpuMemory {
       return _cartridge.getCartridgeMemory();
    }
 }
+

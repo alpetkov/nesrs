@@ -25,9 +25,9 @@ public class OpJSRTest extends TestCase {
 
    @Test
    public void testJSR_ABS() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x20); // Op
-      memory.writeCpuMemory(0x2002, 0x11);
-      memory.writeCpuMemory(0x2003, 0x8E);
+      memory.write(0x2001, 0x20); // Op
+      memory.write(0x2002, 0x11);
+      memory.write(0x2003, 0x8E);
 
       cpu._PC = 0x2001;
       cpu.executeOp();

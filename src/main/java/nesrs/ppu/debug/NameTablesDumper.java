@@ -33,13 +33,13 @@ public class NameTablesDumper {
             int tileY = y / 8;
 
             int tileAddress = nameTableAddress + 32 * tileY + tileX;
-            int tileIndex = _memory.readMemory(tileAddress);
+            int tileIndex = _memory.read(tileAddress);
 
             int attributeTableX = tileX / 4;
             int attributeTableY = tileY / 4;
             int attributeAddress = nameTableAddress + 960 + 8 * attributeTableY + attributeTableX;
 
-            int attributeByte = _memory.readMemory(attributeAddress);
+            int attributeByte = _memory.read(attributeAddress);
 
             int attributeFineX = tileX % 4;
             int attributeFineY = tileY % 4;
@@ -67,8 +67,8 @@ public class NameTablesDumper {
 
             int fineY = y % 8;
             int tileDataLowAddress = backgroundPatternTableAddress + tileIndex * 16 + fineY;
-            int tileDataLow = _memory.readMemory(tileDataLowAddress);
-            int tileDataHigh = _memory.readMemory(tileDataLowAddress + 8);
+            int tileDataLow = _memory.read(tileDataLowAddress);
+            int tileDataHigh = _memory.read(tileDataLowAddress + 8);
 
             int fineX = x % 8;
             int bitPosition = 1 << (7 - fineX);
@@ -83,7 +83,7 @@ public class NameTablesDumper {
             }
 
             int paletteAddress = 0x3F00 | (paletteIndex & 0x1F);
-            int colorIndex = _memory.readMemory(paletteAddress);
+            int colorIndex = _memory.read(paletteAddress);
             int rgb = Palette.RGB[colorIndex];
 
             nameTableData[y][x] = rgb;
@@ -107,8 +107,8 @@ public class NameTablesDumper {
          for (int fineY = 0; fineY < 8; fineY++) {
 
             int tileDataLowAddress = patternTableAddress + tileIndex * 16 + fineY;
-            int tileDataLow = _memory.readMemory(tileDataLowAddress);
-            int tileDataHigh = _memory.readMemory(tileDataLowAddress + 8);
+            int tileDataLow = _memory.read(tileDataLowAddress);
+            int tileDataHigh = _memory.read(tileDataLowAddress + 8);
 
             for (int fineX = 0; fineX < 8; fineX++) {
                int bitPosition = 1 << (7 - fineX);
@@ -123,7 +123,7 @@ public class NameTablesDumper {
                }
 
                int paletteAddress = 0x3F00 | (paletteIndex & 0x1F);
-               int colorIndex = _memory.readMemory(paletteAddress);
+               int colorIndex = _memory.read(paletteAddress);
                int rgb = Palette.RGB[colorIndex & 0x3F];
 
                tiles[(tileIndex / 16) * 8 + fineY][(tileIndex % 16) * 8 + fineX] = rgb;

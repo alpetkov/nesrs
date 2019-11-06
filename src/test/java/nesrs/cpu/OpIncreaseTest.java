@@ -25,21 +25,21 @@ public class OpIncreaseTest extends TestCase {
 
    @Test
    public void testINC() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xE6); // Op
-      memory.writeCpuMemory(0x2002, 0x11);
-      memory.writeCpuMemory(0x0011, 0x8E);
+      memory.write(0x2001, 0xE6); // Op
+      memory.write(0x2002, 0x11);
+      memory.write(0x0011, 0x8E);
       cpu._PC = 0x2001;
       cpu.executeOp();
 
       assertEquals(5, cpu.getOpCycles());
-      assertEquals(0x8F, memory.readCpuMemory(0x0011));
+      assertEquals(0x8F, memory.read(0x0011));
       assertTrue((cpu._P & Cpu.N_FLAG) != 0);
       assertTrue((cpu._P & Cpu.Z_FLAG) == 0);
    }
 
    @Test
    public void testINX() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xE8); // Op
+      memory.write(0x2001, 0xE8); // Op
 
       cpu._X = 0x8E;
       cpu._PC = 0x2001;
@@ -53,7 +53,7 @@ public class OpIncreaseTest extends TestCase {
 
    @Test
    public void testINY() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xC8); // Op
+      memory.write(0x2001, 0xC8); // Op
 
       cpu._Y = 0x8E;
       cpu._PC = 0x2001;

@@ -25,9 +25,9 @@ public class OpBITTest extends TestCase {
 
    @Test
    public void testBIT_ZP() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x24); // Op
-      memory.writeCpuMemory(0x2002, 0x0A);
-      memory.writeCpuMemory(0x000A, 0x80);
+      memory.write(0x2001, 0x24); // Op
+      memory.write(0x2002, 0x0A);
+      memory.write(0x000A, 0x80);
       
       cpu._A = 0xC0;
       cpu._PC = 0x2001;
@@ -41,7 +41,7 @@ public class OpBITTest extends TestCase {
 
    @Test
    public void testBIT_ABS() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x2C); // Op
+      memory.write(0x2001, 0x2C); // Op
       cpu._PC = 0x2001;
       cpu.executeOp();
       assertEquals(4, cpu.getOpCycles());

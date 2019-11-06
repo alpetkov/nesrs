@@ -23,20 +23,27 @@ public class Ppu implements PpuPin {
 
    // Memory
    private final PpuMemory _memory; // VRAM
-   private final SpriteMemory _sprMemory = new SpriteMemory(); // Sprite Memory
+   private final int[] _spriteRam = new int[256]; // Sprite RAM (256b) (64 sprites)
 
    // Rendering
    private static final int NES_HEIGHT = 240;
    private static final int NES_WIDTH = 256;
 
-   private BackgroundTileLatch _bgTileLatch = new BackgroundTileLatch();
-   private BackgroundRenderPipeline _bgRenderPipeline = new BackgroundRenderPipeline();
-   private int[] _sprTempMemory = new int[0x20]; // Sprite temporary Memory (32b) (8 sprites)
-   private boolean _isSpriteZeroInRange = false;
-   private SpriteRenderPipeline[] _spriteRenderPipelineMemory = new SpriteRenderPipeline[8];
+   private final int[] _scanlineOffscreenBuffer = new int[NES_WIDTH]; // 256 pixels per scanline
+   private final int[] _frameBuffer = new int[NES_HEIGHT * NES_WIDTH];
 
-   private int[] _scanlineOffscreenBuffer = new int[NES_WIDTH]; // 256 pixels per scanline
-   private int[] _frameBuffer = new int[NES_HEIGHT * NES_WIDTH];
+   // Background pipeline
+   // Eval
+   private final BackgroundTileLatch _bgTileLatch = new BackgroundTileLatch();
+   // Fetched
+   private final BackgroundRenderPipeline _bgRenderPipeline = new BackgroundRenderPipeline();
+
+   // Sprite pipeline
+   // Eval
+   private final int[] _spriteTempMemory = new int[32]; // Sprite Temporary Memory (32b) (8 sprites)
+   private boolean _isSpriteZeroInRange = false;
+   // Fetched
+   private final SpriteRenderPipeline _spriteRenderPipeline = new SpriteRenderPipeline();
 
    // PPU execution counters
    private int _currentCycle;
@@ -56,11 +63,6 @@ public class Ppu implements PpuPin {
    // For unit tests.
    Ppu(PpuMemory memory) {
       _memory = memory;
-
-//      _backgroundRenderer =
-//            new BackgroundRenderer(_ctrlReg, _maskReg, _vramAddressScrollReg, _memory);
-//      _spriteRenderer =
-//            new SpriteRenderer(_ctrlReg, _maskReg, _statusReg, _memory, _sprMemory);
    }
 
    //
@@ -110,12 +112,7 @@ public class Ppu implements PpuPin {
       _maskReg.value = 0x06;
       _statusReg.value = 0x00;
       _sprRamAddressReg.value = 0x00;
-
-      _vramAddressScrollReg._tempAddress = 0x0;
-      _vramAddressScrollReg._bgFineX = 0;
-      _vramAddressScrollReg._toggle = false;
-      _vramAddressScrollReg._address = 0x0;
-      _vramAddressScrollReg._lastValue = 0x0;
+      _vramAddressScrollReg.init();
 
       _memory.initNtRam();
    }
@@ -132,16 +129,12 @@ public class Ppu implements PpuPin {
       _ctrlReg.value = 0x00;
       _maskReg.value = 0x06;
       _statusReg.value &= 0x80;
-
-      _vramAddressScrollReg._tempAddress = 0x0;
-      _vramAddressScrollReg._bgFineX = 0;
-      _vramAddressScrollReg._toggle = false;
-      _vramAddressScrollReg._lastValue = 0x0;
+      _vramAddressScrollReg.reset();
    }
 
    @Override
-   public void executeCycles(int ppuCycles) {
-      for (int ppuCycle = 0; ppuCycle < ppuCycles; ppuCycle++) {
+   public void executeCycles(int cycles) {
+      for (int i = 0; i < cycles; i++) {
          _currentCycle++;
 
          //
@@ -175,14 +168,8 @@ public class Ppu implements PpuPin {
                   _statusReg.setInVblank(true);
                }
 
-   //            // Clear VBL lock
-   //            _canSetVblForFrame = true;
-
                // Clear spr ram address
                _sprRamAddressReg.value = 0;
-
-               // Clear sprite renderer pipeline
-               resetSpritePipeline();
 
             } else if (_currentCycle == 2) {
                if (_ctrlReg.isExecNmiOnVblEnabled()) {
@@ -205,16 +192,12 @@ public class Ppu implements PpuPin {
             if (_currentCycle == 0) {
                // Clear VBlank flag
                _statusReg.setInVblank(false);
-
+               
                // Fix flags
                _statusReg.value &= ~StatusRegister.SCANLINE_SPRITE_COUNT;
                _statusReg.value &= ~StatusRegister.SPRITE_ZERO_OCCURRENCE;
-
-               // ???
-               //_statusReg._value = 0;
-
                // Clear sprite zero flag
-               clearSpriteZeroInRangeFlag();
+               _isSpriteZeroInRange = false;
 
                if (_isOddFrame && _maskReg.isBackgroundVisibilityEnabled()) {
                   _currentScanlineCyclesCount = ScanlineHelper.CYCLES_COUNT_IN_SCANLINE - 1;
@@ -223,7 +206,7 @@ public class Ppu implements PpuPin {
 
             // Render
             if (_maskReg.isRenderingEnabled()) {
-               executeScanlineCycle(true);
+                executeRenderingCycle(true);
             }
 
             break;
@@ -257,11 +240,11 @@ public class Ppu implements PpuPin {
             if (_currentCycle == 0) {
                // Clear offscreen buffers
                Arrays.fill(_scanlineOffscreenBuffer, 0x00);
-            }
+            }   
             
             // Render
             if (_maskReg.isRenderingEnabled()) {
-               executeScanlineCycle(false);
+               executeRenderingCycle(false);
             }
 
             // Send to video
@@ -274,14 +257,15 @@ public class Ppu implements PpuPin {
                      _frameBuffer,
                      (_currentScanline - 21) * NES_WIDTH,
                      NES_WIDTH);
-
-              if (_currentScanline == 260) {
-                  // Last scanline in a frame
-                  _videoOutListener.handleFrame(_frameBuffer);
+               if (_currentScanline == 260) {
+                  _videoOutListener.handleFrame(_frameBuffer);    
                }
             }
             break;
          }
+         case 261:
+            // WASTE.
+            break;
          }
       }
    }
@@ -314,7 +298,7 @@ public class Ppu implements PpuPin {
       }
 
       case PpuPin.REG_SPR_RAM_IO: {
-         result = _sprMemory.readMemory(_sprRamAddressReg.value);
+         result = _spriteRam[_sprRamAddressReg.value];
          break;
       }
 
@@ -322,14 +306,14 @@ public class Ppu implements PpuPin {
          int vramAddress = _vramAddressScrollReg._address & 0x3FFF;
          if (0 <= vramAddress && vramAddress < 0x3F00) {
             result = _vramAddressScrollReg._lastValue;
-            _vramAddressScrollReg._lastValue = _memory.readMemory(vramAddress);
+            _vramAddressScrollReg._lastValue = _memory.read(vramAddress);
          } else { // Background palette
-            result = _memory.readMemory(vramAddress);
+            result = _memory.read(vramAddress);
             // $2000-$2fff are mirrored at $3000-$3fff
-            _vramAddressScrollReg._lastValue = _memory.readMemory(vramAddress - 0x1000);
+            _vramAddressScrollReg._lastValue = _memory.read(vramAddress - 0x1000);
          }
 
-         _vramAddressScrollReg._address += getVramAddressInc();
+         _vramAddressScrollReg._address += _ctrlReg.getVramAddressInc();
          _vramAddressScrollReg._address &= 0x7FFF;
 
          break;
@@ -375,7 +359,7 @@ public class Ppu implements PpuPin {
       }
 
       case PpuPin.REG_SPR_RAM_IO: {
-         _sprMemory.writeMemory(_sprRamAddressReg.value, value);
+         _spriteRam[_sprRamAddressReg.value] = value;
 
          _sprRamAddressReg.value += 1;
          _sprRamAddressReg.value &= 0xFF;
@@ -455,10 +439,10 @@ public class Ppu implements PpuPin {
 
       case PpuPin.REG_VRAM_IO: {
          if ((_statusReg.value & StatusRegister.VRAM_WRITE_FLAG) == 0) {
-            _memory.writeMemory(_vramAddressScrollReg._address & 0x3FFF, value);
+            _memory.write(_vramAddressScrollReg._address & 0x3FFF, value);
          }
 
-         _vramAddressScrollReg._address += getVramAddressInc();
+         _vramAddressScrollReg._address += _ctrlReg.getVramAddressInc();
          _vramAddressScrollReg._address &= 0x7FFF;
          break;
       }
@@ -471,23 +455,27 @@ public class Ppu implements PpuPin {
 
    @Override
    public int readMemory(int address) {
-      return _memory.readMemory(address);
+      return _memory.read(address);
    }
 
    @Override
    public void writeMemory(int address, int value) {
-      _memory.writeMemory(address, value);
-   }
-
-   private int getVramAddressInc() {
-      return ((_ctrlReg.value & CtrlRegister.ADDR_INC) != 0) ? 32 : 1;
+      _memory.write(address, value);
    }
 
    private int[] getScanlineVideo() {
       int[] scanlineVideoBuffer = new int[_scanlineOffscreenBuffer.length];
       for (int i = 0; i < _scanlineOffscreenBuffer.length; i++) {
-         int paletteAddress = 0x3F00 | (_scanlineOffscreenBuffer[i] & 0x1F);
-         int colorIndex = _memory.readMemory(paletteAddress);
+         int paletteOffset = _scanlineOffscreenBuffer[i];
+         // decode
+         switch (paletteOffset) {
+         case 0x10: paletteOffset = 0x00; break;
+         case 0x14: paletteOffset = 0x04; break;
+         case 0x18: paletteOffset = 0x08; break;
+         case 0x1C: paletteOffset = 0x0C; break;
+         }
+         int colorIndex = _memory._paletteRAM[paletteOffset];
+         
          int rgb = Palette.RGB[colorIndex & 0x3F];
          scanlineVideoBuffer[i] = rgb;
       }
@@ -495,16 +483,11 @@ public class Ppu implements PpuPin {
       return scanlineVideoBuffer;
    }
 
-   //
-   //
-   //
-
    // 0x0 - 0x2000, 0x1 - 0x2400, 0x2 - 0x2800, 0x3 - 0x2C00
    private static final int[] NAMETABLE_IDX_TO_NAMETABLE_ADDRESS =
          new int[] { 0x2000, 0x2400, 0x2800, 0x2C00 };
-
-
-   private void executeScanlineCycle(boolean isDummyScanline) {
+   
+   private void executeRenderingCycle(boolean isDummyScanline) {
       switch (_currentCycle) {
       case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:case 8:case 9:case 10:case 11:case 12:case 13:case 14:case 15:
       case 16:case 17:case 18:case 19:case 20:case 21:case 22:case 23:case 24:case 25:case 26:case 27:case 28:case 29:case 30:case 31:
@@ -513,23 +496,17 @@ public class Ppu implements PpuPin {
          // Memory fetch phase 1 through 128
          int fetchBgTilePhaseCycle = _currentCycle & 0x07;
 
+         if (fetchBgTilePhaseCycle == 0) {
+            // Handle render pipeline feed at the beginning of the phase
+            _bgRenderPipeline.load(_bgTileLatch);
+         }
+         
          if (!isDummyScanline) {
-            if (fetchBgTilePhaseCycle == 0) {
-               // Handle render pipeline feed at the beginning of the phase
-               _bgRenderPipeline.load(_bgTileLatch);
-            }
-
-            // Render BG
-            renderBgPixel();
-
-            // Render Sprite
-            if (_currentScanline > ScanlineHelper.FIRST_RENDER_SCANLINE) { // No sprites on first scanline
-               renderSpritePixel();
-            }
+            renderPixel();
          }
 
          if (fetchBgTilePhaseCycle == 7) {
-            // Fetch tile (8 cc - do it at once as opposed to 4 x 2cc)
+            // Fetch data for next tile to the latch
             fetchBgTileData();
          }
 
@@ -539,7 +516,7 @@ public class Ppu implements PpuPin {
          // Sprite evaluation for next scanline
          evaluateSpritesForNextScanline(_currentScanline);
 
-         // Fall down to rendering.
+         // Fallthrough/Continue to rendering.
       }
       case 65:case 66:case 67:case 68:case 69:case 70:case 71:case 72:case 73:case 74:case 75:case 76:case 77:case 78:case 79:
       case 80:case 81:case 82:case 83:case 84:case 85:case 86:case 87:case 88:case 89:case 90:case 91:case 92:case 93:case 94:case 95:
@@ -555,27 +532,20 @@ public class Ppu implements PpuPin {
       case 240:case 241:case 242:case 243:case 244:case 245:case 246:case 247:case 248:case 249:case 250:case 251:case 252:case 253:case 254:case 255: {
          // Memory fetch phase 1 through 128
          int fetchBgTilePhaseCycle = _currentCycle & 0x07;
+         
+         if (fetchBgTilePhaseCycle == 0) {
+            // Handle render pipeline feed at the beginning of the phase
+            _bgRenderPipeline.load(_bgTileLatch);
+         }
 
          if (!isDummyScanline) {
-            if (fetchBgTilePhaseCycle == 0) {
-               // Handle render pipeline feed at the beginning of the phase
-               _bgRenderPipeline.load(_bgTileLatch);
-            }
-
-            // Render BG
-            renderBgPixel();
-
-            // Render Sprite
-            if (_currentScanline > ScanlineHelper.FIRST_RENDER_SCANLINE) { // No sprites on first scanline
-               renderSpritePixel();
-            }
+            renderPixel();
          }
 
          if (fetchBgTilePhaseCycle == 7) {
-            // Fetch tile (8 cc - do it at once as opposed to 4 x 2cc)
+            // Fetch data for next tile to the latch
             fetchBgTileData();
          }
-
          break;
       }
       case 256: {
@@ -616,9 +586,7 @@ public class Ppu implements PpuPin {
       }
       case 327: {
          // Memory fetch phase 161 through 168
-         _bgRenderPipeline.load(_bgTileLatch);
-         _bgRenderPipeline.shift(8);
-         fetchBgTileData();
+         fetchNextScanlineBgTileData();
          break;
       }
       case 328:case 329:case 330:case 331:case 332:case 333:case 334: {
@@ -627,27 +595,60 @@ public class Ppu implements PpuPin {
       }
       case 335: {
          // Memory fetch phase 161 through 168
-         _bgRenderPipeline.load(_bgTileLatch);
-         _bgRenderPipeline.shift(8);
-         fetchBgTileData();
+         fetchNextScanlineBgTileData();
+         break;
+      }
+      case 336:case 337:case 338:case 339:case 340:case 341: {
          break;
       }
       }
-
    }
-
-   private void renderBgPixel() {
-
-      // Get pixel.
+   
+   private void renderPixel() {
+      int pixel = 0x00;
+      
+      // BG pixel.
       if (_currentCycle > 7 || !_maskReg.isBackgroundClippingEnabled()) {
          int fineX = _vramAddressScrollReg.getBackgroundFineX();
          int bitPosition = 1 << fineX;
 
-         _scanlineOffscreenBuffer[_currentCycle] = _bgRenderPipeline.getPixel(bitPosition);
+         pixel = _bgRenderPipeline.getPixel(bitPosition);
       }
-
-      // Shift pipeline.
+      // Shift BG pipeline.
       _bgRenderPipeline.shift(1);
+      
+      // Sprite pixel.
+      if (_currentScanline > ScanlineHelper.FIRST_RENDER_SCANLINE) { // No sprites on first scanline
+      
+         if (_currentCycle > 7 || !_maskReg.isSpriteClippingEnabled()) {
+            SpriteRenderTileData spriteRenderTileData = _spriteRenderPipeline.data[_currentCycle];
+            if (spriteRenderTileData != null) {
+               int fineX = _currentCycle - spriteRenderTileData._xPosition;
+               int bitPosition = 1 << (7 - fineX);
+               int spritePixel = spriteRenderTileData.getPixel(bitPosition);
+
+               boolean isBgPixelTransparent = (pixel & 0x3) == 0;
+
+               // Determine pixels to draw
+               if (isBgPixelTransparent || spriteRenderTileData._isHighPriority ||
+                     !_maskReg.isBackgroundVisibilityEnabled()) {
+
+                  // BG transparent or SPRITE is high priority -> draw sprite
+                  pixel = spritePixel;
+               }
+
+               // Sprite zero hit test
+               if (spriteRenderTileData._isSpriteZero && !isBgPixelTransparent && 
+                     _maskReg.isBackgroundVisibilityEnabled() &&
+                     _maskReg.isSpriteVisibilityEnabled()  && _currentCycle <= 254) {
+                  // Sprite zero hit
+                  _statusReg.value |= StatusRegister.SPRITE_ZERO_OCCURRENCE;
+               }
+            }
+         }
+      }
+      
+      _scanlineOffscreenBuffer[_currentCycle] = pixel;
    }
 
    private void fetchBgTileData() {
@@ -659,14 +660,14 @@ public class Ppu implements PpuPin {
       //
       // Name table read
       //
-      nameTableIndex = _vramAddressScrollReg.getNameTableIndex();
+      nameTableIndex = (_vramAddressScrollReg._address >> 10) & 0x3;
       nameTableAddress = NAMETABLE_IDX_TO_NAMETABLE_ADDRESS[nameTableIndex];
-      tileX = _vramAddressScrollReg.getBackgroundTileX();
-      tileY = _vramAddressScrollReg.getBackgroundTileY();
+      tileX = _vramAddressScrollReg._address & 0x1F;
+      tileY = (_vramAddressScrollReg._address >> 5) & 0x1F;
 
       //int tileAddress = nameTableAddress + 32 * tileY + tileX;
-      int tileAddress = nameTableAddress + (tileY<<5) + tileX;
-      _bgTileLatch._tileIndex = _memory.readMemory(tileAddress);
+      int tileAddress = nameTableAddress + (tileY << 5) + tileX;
+      _bgTileLatch._tileIndex = _memory.read(tileAddress);
 
       //
       // Attribute table read
@@ -677,28 +678,13 @@ public class Ppu implements PpuPin {
       // Each attribute byte is for 32x32 pixels (4x4 tiles).
       //int attributeAddress = nameTableAddress + 960 + 8 * attributeTableY + attributeTableX;
       int attributeAddress = nameTableAddress + 960 + (attributeTableY << 3) + attributeTableX;
-      int attributeByte = _memory.readMemory(attributeAddress);
+      int attributeByte = _memory.read(attributeAddress);
 
       int attributeFineX = tileX & 0x3; // tileX % 4
       int attributeFineY = tileY & 0x3; // tileY % 4
-      if (attributeFineY < 2) {
-         if (attributeFineX < 2) {
-            // Square 0 (top left)
-            _bgTileLatch._attributePaletteData = attributeByte & 0x03;
-         } else {
-            // Square 1 (top right)
-            _bgTileLatch._attributePaletteData = (attributeByte & 0x0C) >> 2;
-         }
-      } else {
-         if (attributeFineX < 2) {
-            // Square 2 (bottom left)
-            _bgTileLatch._attributePaletteData = (attributeByte & 0x30) >> 4;
-         } else {
-            // Square 3 (bottom right)
-            _bgTileLatch._attributePaletteData = (attributeByte & 0xC0) >> 6;
-         }
-      }
-
+      int squareSelector = (attributeFineY & 2) | ((attributeFineX & 2) >> 1);
+      _bgTileLatch._attributePaletteData = (attributeByte & ATTRIBUTE_PALETTE_DATA_SQUARE_BITS[squareSelector]) >> (squareSelector << 1);
+      
       // tileX is calculated and stored. Increment for next fetch.
       _vramAddressScrollReg.incrementBackgroundTileX();
 
@@ -709,64 +695,30 @@ public class Ppu implements PpuPin {
       int backgroundPatternTableAddress = 0;
       int tileDataLowAddress = 0;
 
-      fineY = _vramAddressScrollReg.getBackgroundFineY();
+      fineY = (_vramAddressScrollReg._address >> 12) & 0x7;
       backgroundPatternTableAddress = _ctrlReg.getBackgroundPatternTableAddress();
-      //tileDataLowAddress = backgroundPatternTableAddress + _bgTileLatch._tileIndex * 16 + fineY;
       tileDataLowAddress = backgroundPatternTableAddress + (_bgTileLatch._tileIndex << 4) + fineY;
-      _bgTileLatch._tileDataLow = _memory.readMemory(tileDataLowAddress);
+      int[] res = _memory.readTile(tileDataLowAddress);
+//      _bgTileLatch._tileDataLow = _memory.read(tileDataLowAddress);
+      _bgTileLatch._tileDataLow = res[0];
+      _bgTileLatch._tileDataHigh = res[1];
 
       //
       // Pattern table bitmap #1 read
       //
-      int tileDataHighAddress = tileDataLowAddress + 8;
-      _bgTileLatch._tileDataHigh = _memory.readMemory(tileDataHighAddress);
+//      int tileDataHighAddress = tileDataLowAddress + 8;
+//      _bgTileLatch._tileDataHigh = _memory.read(tileDataHighAddress);
    }
 
-
-   private void renderSpritePixel() {
-      if (_currentCycle <= 7 && _maskReg.isSpriteClippingEnabled()) {
-         return;
-      }
-
-      for (int i = 0; i < _spriteRenderPipelineMemory.length; i++) {
-         // Go through all sprites evaluated for the scanline
-         SpriteRenderPipeline spriteRenderPipeline = _spriteRenderPipelineMemory[i];
-
-         int fineX = _currentCycle - spriteRenderPipeline._xPosition;
-         if (0 <= fineX && fineX <= 7) {
-            int bitPosition = 1 << (7 - fineX);
-            int spritePixel = spriteRenderPipeline.getPixel(bitPosition);
-
-            if ((spritePixel & 0x3) != 0) {
-               // First non transparent sprite. We stop here!
-
-               int bgPixel = _scanlineOffscreenBuffer[_currentCycle];
-
-               // Determine pixels to draw
-               if ((bgPixel & 0x3) == 0 || spriteRenderPipeline._isHighPriority ||
-                     !_maskReg.isBackgroundVisibilityEnabled()) {
-
-                  // BG transparent or SPRITE is high priority -> draw sprite
-                  _scanlineOffscreenBuffer[_currentCycle] = spritePixel;
-               }
-
-               // Sprite zero hit test
-               if (_maskReg.isRenderingEnabled() && _currentCycle <= 254 &&
-                     (bgPixel & 0x3) != 0 && spriteRenderPipeline._isSpriteZero) {
-
-                  // Sprite zero hit
-                  _statusReg.value |= StatusRegister.SPRITE_ZERO_OCCURRENCE;
-               }
-
-               break;
-            }
-         }
-      }
+   private void fetchNextScanlineBgTileData() {
+      _bgRenderPipeline.load(_bgTileLatch);
+      _bgRenderPipeline.shift(8);
+      fetchBgTileData();
    }
-
+   
    private void evaluateSpritesForNextScanline(int currentScanline) {
       for (int i = 0 ; i < 32; i++) {
-         _sprTempMemory[i] = 0xFF;
+         _spriteTempMemory[i] = 0xFF;
       }
 
       // Iterate over all 64 sprites and find the first 8 that are suitable for the next scanline.
@@ -774,22 +726,22 @@ public class Ppu implements PpuPin {
       for (int i = 0; i < 64; i++) {
          int spriteMemoryIndex = i << 2; // i*4
 
-         int yPosition = _sprMemory.readMemory(spriteMemoryIndex);
+         int yPosition = _spriteRam[spriteMemoryIndex];
 
          if (isSpriteInRangeForNextScanline(yPosition, currentScanline)) {
 
             if (spriteIndexForNextScanline < 8) {
                // 8 sprites are only visible for scanline.
-               int tileIndex = _sprMemory.readMemory(spriteMemoryIndex + 1);
-               int attributes = _sprMemory.readMemory(spriteMemoryIndex + 2);
-               int xPosition = _sprMemory.readMemory(spriteMemoryIndex + 3);
+               int tileIndex = _spriteRam[spriteMemoryIndex + 1];
+               int attributes = _spriteRam[spriteMemoryIndex + 2];
+               int xPosition = _spriteRam[spriteMemoryIndex + 3];
 
                int spriteTempMemoryIndex = spriteIndexForNextScanline << 2; // * 4
 
-               _sprTempMemory[spriteTempMemoryIndex] = yPosition;
-               _sprTempMemory[spriteTempMemoryIndex + 1] = tileIndex;
-               _sprTempMemory[spriteTempMemoryIndex + 2] = attributes;
-               _sprTempMemory[spriteTempMemoryIndex + 3] = xPosition;
+               _spriteTempMemory[spriteTempMemoryIndex] = yPosition;
+               _spriteTempMemory[spriteTempMemoryIndex + 1] = tileIndex;
+               _spriteTempMemory[spriteTempMemoryIndex + 2] = attributes;
+               _spriteTempMemory[spriteTempMemoryIndex + 3] = xPosition;
 
                spriteIndexForNextScanline++;
 
@@ -831,13 +783,15 @@ public class Ppu implements PpuPin {
    }
 
    private void fetchSpriteTileDataForNextScanline(int currentScanline) {
+      resetSpritePipeline();
+      
       for (int spriteIndex = 0; spriteIndex < 8; spriteIndex++) {
 
          int spriteAddress = spriteIndex << 2; // * 4
-         int yPosition = _sprTempMemory[spriteAddress];
-         int tileIndex = _sprTempMemory[spriteAddress + 1];
-         int attributes = _sprTempMemory[spriteAddress + 2];
-         int xPosition = _sprTempMemory[spriteAddress + 3];
+         int yPosition = _spriteTempMemory[spriteAddress];
+         int tileIndex = _spriteTempMemory[spriteAddress + 1];
+         int attributes = _spriteTempMemory[spriteAddress + 2];
+         int xPosition = _spriteTempMemory[spriteAddress + 3];
 
          int fineY =
                currentScanline -
@@ -864,7 +818,7 @@ public class Ppu implements PpuPin {
             }
          }
 
-         SpriteRenderPipeline spriteRenderData = new SpriteRenderPipeline();
+         SpriteRenderTileData spriteRenderData = new SpriteRenderTileData();
 
          if (yPosition == 0xFF &&
                (tileIndex == 0xFE || tileIndex == 0xFF) &&
@@ -874,7 +828,7 @@ public class Ppu implements PpuPin {
             // Although there is no sprite, we need to do dummy fetch so that the address line
             // is available (for Mapper04 for example).
             int tileDataLowAddress = spritePatternTableAddress + tileIndex * 16 + 0;
-            _memory.readMemory(tileDataLowAddress);
+            _memory.read(tileDataLowAddress);
             //_memory.readMemory(tileDataLowAddress + 8);
 
             // No sprite
@@ -888,8 +842,8 @@ public class Ppu implements PpuPin {
          } else {
 
             int tileDataLowAddress = spritePatternTableAddress + tileIndex * 16 + fineY;
-            spriteRenderData._tileDataLow = _memory.readMemory(tileDataLowAddress);
-            spriteRenderData._tileDataHigh = _memory.readMemory(tileDataLowAddress + 8);
+            spriteRenderData._tileDataLow = _memory.read(tileDataLowAddress);
+            spriteRenderData._tileDataHigh = _memory.read(tileDataLowAddress + 8);
             if ((attributes & SPR_ATTR_REVERT_HORIZONTALLY) != 0) {
                spriteRenderData._tileDataLow = BitUtil.reverseByte(spriteRenderData._tileDataLow);
                spriteRenderData._tileDataHigh = BitUtil.reverseByte(spriteRenderData._tileDataHigh);
@@ -900,27 +854,20 @@ public class Ppu implements PpuPin {
             spriteRenderData._isSpriteZero = (_isSpriteZeroInRange && spriteIndex == 0);
          }
 
-         _spriteRenderPipelineMemory[spriteIndex] = spriteRenderData;
+         for (int fineX = 0; fineX <= 7; fineX++) {
+            int position = spriteRenderData._xPosition + fineX;
+            if (position <= 255) {
+               int bitPosition = 1 << (7 - fineX);
+               if (_spriteRenderPipeline.data[position] == null && ((spriteRenderData.getPixel(bitPosition) & 0x3) != 0)) {
+                  _spriteRenderPipeline.data[position] = spriteRenderData;
+               }
+            }
+         }
       }
    }
 
-   public void resetSpritePipeline() {
-      SpriteRenderPipeline noSpriteRenderData = new SpriteRenderPipeline();
-      noSpriteRenderData._tileDataLow = 0x0;
-      noSpriteRenderData._tileDataHigh = 0x0; // Transparent
-      noSpriteRenderData._attributePaletteData = 0x0; // Irrelevant palette select index
-      noSpriteRenderData._isHighPriority = false; // < background
-      noSpriteRenderData._xPosition = 0x0; // Irrelevant
-      noSpriteRenderData._isSpriteZero = false;
-
-      for (int  i = 0; i < _spriteRenderPipelineMemory.length; i++) {
-         _spriteRenderPipelineMemory[i] = noSpriteRenderData;
-      }
-   }
-
-   public final void clearSpriteZeroInRangeFlag() {
-      // Clear sprite zero flag
-      _isSpriteZeroInRange = false;
+   private void resetSpritePipeline() {
+      Arrays.fill(_spriteRenderPipeline.data, null);
    }
 
    private static class BackgroundTileLatch {
@@ -981,7 +928,7 @@ public class Ppu implements PpuPin {
       }
    }
 
-   private static class SpriteRenderPipeline {
+   private static class SpriteRenderTileData {
       int _tileDataLow = 0x0; // 8 bits (8 pixels - 1 tile row pixels)
       int _tileDataHigh = 0x0; // 8 bits (8 pixels - 1 tile row pixels)
       int _attributePaletteData = 0x0; // 2 bits (for 8 pixels)
@@ -997,7 +944,11 @@ public class Ppu implements PpuPin {
       }
    }
    
-   //   Attributes byte
+   private static class SpriteRenderPipeline {
+      SpriteRenderTileData[] data = new SpriteRenderTileData[256];
+   }
+   
+   //  Attributes byte
    //  76543210
    //  ||||||||
    //  ||||||++- Palette (4 to 7) of sprite
@@ -1010,4 +961,10 @@ public class Ppu implements PpuPin {
    public static final int SPR_ATTR_PRIORITY = 0x20; // bit 5
    public static final int SPR_ATTR_PALETTE = 0x3; // bits 0 & 1
 
+   private final int[] ATTRIBUTE_PALETTE_DATA_SQUARE_BITS = new int[] {
+         0x03, /* Square 0 (top left) */
+         0x0C, /* Square 1 (top right) */
+         0x30, /* Square 2 (bottom left) */
+         0xC0  /* Square 3 (bottom right) */
+         };
 }

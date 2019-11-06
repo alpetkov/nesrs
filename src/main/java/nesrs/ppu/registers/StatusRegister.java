@@ -19,11 +19,11 @@ public class StatusRegister {
 
    public int value;
 
-   public boolean isInVblank() {
+   public final boolean isInVblank() {
       return (value & VBLANK_OCCURRENCE) != 0;
    }
 
-   public void setInVblank(boolean hasOccurred) {
+   public final void setInVblank(boolean hasOccurred) {
       if (hasOccurred) {
          value |= VBLANK_OCCURRENCE;
       } else {

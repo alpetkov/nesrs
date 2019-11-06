@@ -25,8 +25,8 @@ public class OpLoadTest extends TestCase {
 
    @Test
    public void testLDA() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xA9); // Op
-      memory.writeCpuMemory(0x2002, 0x81);
+      memory.write(0x2001, 0xA9); // Op
+      memory.write(0x2002, 0x81);
 
       cpu._PC = 0x2001;
       cpu.executeOp();
@@ -39,8 +39,8 @@ public class OpLoadTest extends TestCase {
 
    @Test
    public void testLDX() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xA2); // Op
-      memory.writeCpuMemory(0x2002, 0x81);
+      memory.write(0x2001, 0xA2); // Op
+      memory.write(0x2002, 0x81);
 
       cpu._PC = 0x2001;
       cpu.executeOp();
@@ -53,8 +53,8 @@ public class OpLoadTest extends TestCase {
 
    @Test
    public void testLDY() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xA0); // Op
-      memory.writeCpuMemory(0x2002, 0x81);
+      memory.write(0x2001, 0xA0); // Op
+      memory.write(0x2002, 0x81);
 
       cpu._PC = 0x2001;
       cpu.executeOp();

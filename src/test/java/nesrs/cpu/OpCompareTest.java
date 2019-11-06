@@ -25,8 +25,8 @@ public class OpCompareTest extends TestCase {
 
    @Test
    public void testCMPPositive() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xC9); // Op
-      memory.writeCpuMemory(0x2002, 0x8E);
+      memory.write(0x2001, 0xC9); // Op
+      memory.write(0x2002, 0x8E);
 
       cpu._A = 0x1F;
       cpu._PC = 0x2001;
@@ -40,8 +40,8 @@ public class OpCompareTest extends TestCase {
 
    @Test
    public void testCMPNegative() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xC9); // Op
-      memory.writeCpuMemory(0x2002, 0x0F);
+      memory.write(0x2001, 0xC9); // Op
+      memory.write(0x2002, 0x0F);
 
       cpu._A = 0x8F;
       cpu._PC = 0x2001;
@@ -55,8 +55,8 @@ public class OpCompareTest extends TestCase {
 
    @Test
    public void testCPXPositive() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xE0); // Op
-      memory.writeCpuMemory(0x2002, 0x8E);
+      memory.write(0x2001, 0xE0); // Op
+      memory.write(0x2002, 0x8E);
 
       cpu._X = 0x1F;
       cpu._PC = 0x2001;
@@ -70,8 +70,8 @@ public class OpCompareTest extends TestCase {
 
    @Test
    public void testCPXNegative() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xE0); // Op
-      memory.writeCpuMemory(0x2002, 0x0F);
+      memory.write(0x2001, 0xE0); // Op
+      memory.write(0x2002, 0x0F);
 
       cpu._X = 0x8F;
       cpu._PC = 0x2001;
@@ -85,8 +85,8 @@ public class OpCompareTest extends TestCase {
 
    @Test
    public void testCPYPositive() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xC0); // Op
-      memory.writeCpuMemory(0x2002, 0x8E);
+      memory.write(0x2001, 0xC0); // Op
+      memory.write(0x2002, 0x8E);
 
       cpu._Y = 0x1F;
       cpu._PC = 0x2001;
@@ -100,8 +100,8 @@ public class OpCompareTest extends TestCase {
 
    @Test
    public void testCPYNegative() throws Exception {
-      memory.writeCpuMemory(0x2001, 0xC0); // Op
-      memory.writeCpuMemory(0x2002, 0x0F);
+      memory.write(0x2001, 0xC0); // Op
+      memory.write(0x2002, 0x0F);
 
       cpu._Y = 0x8F;
       cpu._PC = 0x2001;

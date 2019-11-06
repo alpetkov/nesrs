@@ -240,12 +240,12 @@ public class Cpu implements CpuPin {
 
    @Override
    public int readMemory(int address) {
-      return _memory.readCpuMemory(address);
+      return _memory.read(address);
    }
 
    @Override
    public void writeMemory(int address, int value) {
-      int additionalWriteCycles = _memory.writeCpuMemory(address, value);
+      int additionalWriteCycles = _memory.write(address, value);
       if (additionalWriteCycles > 0) {
          _opCycles += additionalWriteCycles;
       }

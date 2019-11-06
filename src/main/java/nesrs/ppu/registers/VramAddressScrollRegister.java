@@ -16,6 +16,21 @@ public class VramAddressScrollRegister {
    public boolean _toggle; // VRAM address step toggle
    public int _bgFineX; // xxx (Background fineX)
 
+   public void init() {
+      _tempAddress = 0x0;
+      _bgFineX = 0;
+      _toggle = false;
+      _address = 0x0;
+      _lastValue = 0x0;
+   }
+   
+   public void reset() {
+      _tempAddress = 0x0;
+      _bgFineX = 0;
+      _toggle = false;
+      _lastValue = 0x0;
+   }
+   
    public final int getBackgroundFineX() {
       return _bgFineX;
    }

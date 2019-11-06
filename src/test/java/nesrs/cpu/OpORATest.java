@@ -25,8 +25,8 @@ public class OpORATest extends TestCase {
 
    @Test
    public void testORA() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x09); // Op
-      memory.writeCpuMemory(0x2002, 0xC0); // Op
+      memory.write(0x2001, 0x09); // Op
+      memory.write(0x2002, 0xC0); // Op
 
       cpu._A = 0x41;
       cpu._PC = 0x2001;

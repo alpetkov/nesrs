@@ -26,7 +26,7 @@ public class OpASLTest extends TestCase {
 
    @Test
    public void testASL_ACC() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x0A); // Op
+      memory.write(0x2001, 0x0A); // Op
 
       cpu._A = 0x80;
       cpu._PC = 0x2001;
@@ -41,7 +41,7 @@ public class OpASLTest extends TestCase {
 
    @Test
    public void testASL_ZP() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x06); // Op
+      memory.write(0x2001, 0x06); // Op
       cpu._PC = 0x2001;
       cpu.executeOp();
       assertEquals(5, cpu.getOpCycles());
@@ -49,7 +49,7 @@ public class OpASLTest extends TestCase {
 
    @Test
    public void testASL_ZPX() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x16); // Op
+      memory.write(0x2001, 0x16); // Op
       cpu._PC = 0x2001;
       cpu.executeOp();
       assertEquals(6, cpu.getOpCycles());
@@ -57,7 +57,7 @@ public class OpASLTest extends TestCase {
 
    @Test
    public void testASL_ABS() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x0E); // Op
+      memory.write(0x2001, 0x0E); // Op
       cpu._PC = 0x2001;
       cpu.executeOp();
       assertEquals(6, cpu.getOpCycles());
@@ -65,7 +65,7 @@ public class OpASLTest extends TestCase {
 
    @Test
    public void testASL_ABSX() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x1E); // Op
+      memory.write(0x2001, 0x1E); // Op
       cpu._PC = 0x2001;
       cpu.executeOp();
       assertEquals(7, cpu.getOpCycles());

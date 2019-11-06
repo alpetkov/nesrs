@@ -25,9 +25,9 @@ public class OpJMPTest extends TestCase {
 
    @Test
    public void testJMP_ABS() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x4C); // Op
-      memory.writeCpuMemory(0x2002, 0x11);
-      memory.writeCpuMemory(0x2003, 0x8E);
+      memory.write(0x2001, 0x4C); // Op
+      memory.write(0x2002, 0x11);
+      memory.write(0x2003, 0x8E);
 
       cpu._PC = 0x2001;
       cpu.executeOp();

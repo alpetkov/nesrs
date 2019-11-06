@@ -24,8 +24,8 @@ public class BootTest extends TestCase {
 
    @Test
    public void testInit() throws Exception {
-      memory.writeCpuMemory(0xFFFC, 0x11);
-      memory.writeCpuMemory(0xFFFD, 0x10);
+      memory.write(0xFFFC, 0x11);
+      memory.write(0xFFFD, 0x10);
       cpu.init();
       assertEquals(cpu._PC, 0x1011);
    }

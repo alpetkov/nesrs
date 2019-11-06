@@ -232,7 +232,7 @@ public class BackgroundRenderer {
 
       //int tileAddress = nameTableAddress + 32 * tileY + tileX;
       int tileAddress = nameTableAddress + (tileY<<5) + tileX;
-      _bgTileLatch._tileIndex = _memory.readMemory(tileAddress);
+      _bgTileLatch._tileIndex = _memory.read(tileAddress);
 
       //
       // Attribute table read
@@ -243,7 +243,7 @@ public class BackgroundRenderer {
       // Each attribute byte is for 32x32 pixels (4x4 tiles).
       //int attributeAddress = nameTableAddress + 960 + 8 * attributeTableY + attributeTableX;
       int attributeAddress = nameTableAddress + 960 + (attributeTableY << 3) + attributeTableX;
-      int attributeByte = _memory.readMemory(attributeAddress);
+      int attributeByte = _memory.read(attributeAddress);
 
       int attributeFineX = tileX & 0x3; // tileX % 4
       int attributeFineY = tileY & 0x3; // tileY % 4
@@ -279,13 +279,13 @@ public class BackgroundRenderer {
       backgroundPatternTableAddress = getBackgroundPatternTableAddress();
       //tileDataLowAddress = backgroundPatternTableAddress + _bgTileLatch._tileIndex * 16 + fineY;
       tileDataLowAddress = backgroundPatternTableAddress + (_bgTileLatch._tileIndex << 4) + fineY;
-      _bgTileLatch._tileDataLow = _memory.readMemory(tileDataLowAddress);
+      _bgTileLatch._tileDataLow = _memory.read(tileDataLowAddress);
 
       //
       // Pattern table bitmap #1 read
       //
       int tileDataHighAddress = tileDataLowAddress + 8;
-      _bgTileLatch._tileDataHigh = _memory.readMemory(tileDataHighAddress);
+      _bgTileLatch._tileDataHigh = _memory.read(tileDataHighAddress);
    }
 
    private void incrementBackgroundTileX() {

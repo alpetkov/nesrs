@@ -25,7 +25,7 @@ public class OpLSRTest extends TestCase {
 
    @Test
    public void testLSR() throws Exception {
-      memory.writeCpuMemory(0x2001, 0x4A); // Op
+      memory.write(0x2001, 0x4A); // Op
 
       cpu._A = 0x81;
       cpu._PC = 0x2001;

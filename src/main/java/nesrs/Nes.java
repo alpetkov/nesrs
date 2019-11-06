@@ -10,7 +10,6 @@ import nesrs.controller.Controller;
 import nesrs.cpu.Cpu;
 import nesrs.cpu.NesCpuMemory;
 import nesrs.ppu.Ppu;
-import nesrs.ppu.OldPpu;
 import nesrs.ppu.VideoOutListener;
 
 public class Nes implements Runnable {
@@ -34,6 +33,8 @@ public class Nes implements Runnable {
    private final AudioOutListener _audioOut;
    private final Controller _controller1;
 
+   static final double nanoToMs = 1000000.0;
+   
    public Nes(byte[] rom, VideoOutListener videoOut, AudioOutListener audioOut,
          Controller controller1) {
 
@@ -142,7 +143,9 @@ public class Nes implements Runnable {
    }
    
    public void updateInput() {
-      _controller1.captureState();
+      if (_controller1 != null) {
+         _controller1.captureState();
+      }
    }
    
    public long runFrames(long lastRunEnd, long frameCpuCycles) {
@@ -167,34 +170,32 @@ public class Nes implements Runnable {
       long cpuTime = 0;
       long ppuTime = 0;
       long apuTime = 0;
-      while (frameCpuCycles < 29780) {      
-//         long start = System.nanoTime();
+
+      while (frameCpuCycles < 29781) {      
+         long start = System.nanoTime();
          // CPU
          int cpuCycles = _cpu.executeOp();
-//         long end = System.nanoTime();
-//         cpuTime += (end - start);
+         long end = System.nanoTime();
+         cpuTime += (end - start);
          
-//         start = System.nanoTime();
+         start = System.nanoTime();
          // APU
          _apu.executeCycles(cpuCycles);
-//         end = System.nanoTime();
-//         apuTime += (end - start);
+         end = System.nanoTime();
+         apuTime += (end - start);
          
-//         long start = System.nanoTime();
+         start = System.nanoTime();
          // PPU
          int ppuCycles = cpuCycles + cpuCycles + cpuCycles; // TODO cycles between ppu and cpu depends on nes type
          _ppu.executeCycles(ppuCycles);
-//         long end = System.nanoTime();
-//         ppuTime += (end - start);
+         end = System.nanoTime();
+         ppuTime += (end - start);
          
          frameCpuCycles += cpuCycles;
       }
       
-      frameCpuCycles -= 29780;
-      
-      return frameCpuCycles;
+      frameCpuCycles -= 29781;
 
-//      double nanoToMs = 1000000.0;
 //      System.out.println(
 //            "CPU: " + (cpuTime / nanoToMs) +
 //            ", APU: " + (apuTime / nanoToMs) +
@@ -208,10 +209,11 @@ public class Nes implements Runnable {
 //            ", Regular: " + (_ppu.regularTime / nanoToMs) +
 //            ", RegularX: " + (_ppu.regularXTime / nanoToMs) +
 //            ", HandleFrame: " + (_ppu.handleFrameTime / nanoToMs));
+      return frameCpuCycles;
+
    }
    
    public void renderGraphics() {
-//      double nanoToMs = 1000000.0;
 //      long start = System.nanoTime();
       _videoOut.render();
 //      long end = System.nanoTime();
@@ -224,27 +226,5 @@ public class Nes implements Runnable {
 //      _audioOut.render();
 //      long end = System.nanoTime();
 //      System.out.println("Sound: " + ((end - start) / nanoToMs));
-   }
-   
-   public static void main(String[] args) {
-      double nanoToMs = 1000000.0;
-      long start = System.nanoTime();
-      for (int i = 0; i < 10000; i++) {
-         empty();
-      }
-      long end = System.nanoTime();
-      System.out.println("Test: " + ((end - start) / nanoToMs));
-      
-      for (int i = 0; i < 1; i++) {
-         for (int j = 0; j < 16; j++) {
-            System.out.print("case " + (320 + i*16 + j) + ":");
-            
-         }
-         System.out.println();
-      }
-   }
-   
-   private static void empty() {
-      int x;
    }
 }

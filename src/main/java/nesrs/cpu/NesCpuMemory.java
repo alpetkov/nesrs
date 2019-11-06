@@ -50,7 +50,7 @@ public class NesCpuMemory implements CpuMemory {
    }
 
    @Override
-   public int readCpuMemory(int address) {
+   public int read(int address) {
       int page = address & 0xF000;
 
       if (page == 0x0000 || page == 0x1000) {
@@ -103,7 +103,7 @@ public class NesCpuMemory implements CpuMemory {
    }
 
    @Override
-   public int writeCpuMemory(int address, int value) {
+   public int write(int address, int value) {
       int page = (address & 0xF000);
 
       if (page == 0x0000 || page == 0x1000) {
@@ -131,7 +131,7 @@ public class NesCpuMemory implements CpuMemory {
             if (_ppu != null) {
                int memAddress = value << 8;
                for (int i = 0; i <= 0xFF; i++) {
-                  int memValue = readCpuMemory(memAddress);
+                  int memValue = read(memAddress);
                   // Writes to 0x2004 which is mapped to ppu's spr ram register
                   _ppu.writeRegister(PpuPin.REG_SPR_RAM_IO, memValue);
                   memAddress++;
