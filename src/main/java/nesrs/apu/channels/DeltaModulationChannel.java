@@ -108,6 +108,10 @@ public class DeltaModulationChannel {
       return _irqFlag;
    }
 
+   public void resetIrqStatus() {
+      _irqFlag = false;
+   }
+
    private void dmaReaderRestartSampleCounters() {
       _dmaReaderAddressCounter = (_sampleAddress << 6) + 0xC000;
       _dmaReaderBytesRemainCounter = (_sampleLength << 4) + 1;

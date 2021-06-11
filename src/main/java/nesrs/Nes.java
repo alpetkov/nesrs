@@ -223,7 +223,9 @@ public class Nes implements Runnable {
    public void playAudio() {
 //      double nanoToMs = 1000000.0;
 //      long start = System.nanoTime();
-//      _audioOut.render();
+      if (_audioOut != null) {
+         _audioOut.render();
+      }
 //      long end = System.nanoTime();
 //      System.out.println("Sound: " + ((end - start) / nanoToMs));
    }

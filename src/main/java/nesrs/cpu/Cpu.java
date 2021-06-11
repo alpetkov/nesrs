@@ -145,6 +145,7 @@ public class Cpu implements CpuPin {
 
    @Override
    public void reset() {
+      _P |= I_FLAG;
       requestInterrupt(InterruptType.RESET);
    }
 
@@ -206,7 +207,7 @@ public class Cpu implements CpuPin {
          _X = 0x00;
          _Y = 0x00;
          _S = 0xFF;
-         _P = Z_FLAG | R_FLAG;
+         _P = Z_FLAG | R_FLAG | I_FLAG;
          _PC = (readMemory(0xFFFD) << 8) | readMemory(0xFFFC);
 
       } else if (_pendingInterrupt == InterruptType.NMI) {

@@ -6,6 +6,7 @@ import nesrs.apu.channels.RectangleWaveChannel;
 import nesrs.apu.channels.TriangleWaveChannel;
 import nesrs.cpu.CpuMemory;
 import nesrs.cpu.IrqListener;
+import nesrs.util.Util;
 
 public class Apu implements ApuPin {
 
@@ -77,10 +78,25 @@ public class Apu implements ApuPin {
 
    @Override
    public void init() {
+      _frameSequencer.resetIrqStatus();
+      _deltaModulationChannel.resetIrqStatus();
+
+//      _randomWaveChannel.setLengthCounterEnabled(true);
+//      _triangleWaveChannel.setLengthCounterEnabled(true);
+//      _rectangleWaveChannel1.setLengthCounterEnabled(true);
+//      _rectangleWaveChannel2.setLengthCounterEnabled(true);
    }
 
    @Override
    public void reset() {
+      _frameSequencer.resetIrqStatus();
+      _deltaModulationChannel.resetIrqStatus();
+      
+
+      _randomWaveChannel.setLengthCounterEnabled(true);
+      _triangleWaveChannel.setLengthCounterEnabled(true);
+      _rectangleWaveChannel1.setLengthCounterEnabled(true);
+      _rectangleWaveChannel2.setLengthCounterEnabled(true);
    }
 
    @Override

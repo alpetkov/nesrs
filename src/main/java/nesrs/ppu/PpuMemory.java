@@ -1,7 +1,6 @@
 package nesrs.ppu;
 
 import nesrs.cartridge.Cartridge;
-import nesrs.cartridge.CartridgeMemory;
 
 public class PpuMemory {
    // PPU addressable memory (16Kb)
@@ -115,10 +114,6 @@ public class PpuMemory {
       }
 
       return address;
-   }
-
-   public CartridgeMemory getCartridgeMemory() {
-      return _cartridge.getCartridgeMemory();
    }
 }
 

@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 import nesrs.cartridge.Cartridge;
 import nesrs.cartridge.INesRomCartridgeReader;
 import nesrs.cpu.Cpu;
-import nesrs.cpu.NesCpuMemory;
+import nesrs.cpu.TestCPUMemory;
 import nesrs.util.Util;
 
 public class Nestest extends TestCase {
@@ -23,13 +23,9 @@ public class Nestest extends TestCase {
 
 		Cartridge cartridge = loadNestestCartridge();
 
-		NesCpuMemory cpuMemory = new NesCpuMemory();
-		cpuMemory.setCartridge(cartridge);
-
-//		TestCPUMemory cpuMemory = new TestCPUMemory();
-//		cpuMemory.setPrgRom(0x8000, cartridge.getCartridgeMemory().prgRom);
-//		cpuMemory.setPrgRom(0xC000, cartridge.getCartridgeMemory().prgRom);
-//		cpuMemory.setPrgRam(cartridge.getCartridgeMemory().prgRam);
+		TestCPUMemory cpuMemory = new TestCPUMemory();
+		cpuMemory.setPrgRom(0x8000, cartridge.getCartridgeMemory().prgRom);
+		cpuMemory.setPrgRom(0xC000, cartridge.getCartridgeMemory().prgRom);
 
 		Cpu cpu = new Cpu(cpuMemory);
 

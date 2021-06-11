@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 
 import nesrs.controller.StandardController;
 import nesrs.ui.AudioPlayer;
+import nesrs.ui.NesPowerKeyListener;
 import nesrs.ui.StandardControllerKeyListener;
 import nesrs.ui.VideoPlayer;
 import nesrs.util.Util;
@@ -56,6 +57,7 @@ public class Main {
 
          // Start NES
          Nes nes = new Nes(nesRom, videoPlayer, audioPlayer, controller1);
+         window.addKeyListener(new NesPowerKeyListener(nes));
          nes.start();
       }
    }
