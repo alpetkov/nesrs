@@ -15,7 +15,8 @@ public class TriangleWaveChannel {
    private LinearCounter _linearCounter;
    private LengthCounter _lengthCounter;
    private Sequencer _sequencer = new Sequencer(
-         new int[] { 0xF, 0xE, 0xD, 0xC, 0xB, 0xA, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF});
+         new int[] {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+                    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
 
    public TriangleWaveChannel() {
       _timer = new Timer(0);
@@ -52,12 +53,13 @@ public class TriangleWaveChannel {
       return _lengthCounter.getCount();
    }
 
+   public int getLinearCounterCount() {
+      return _linearCounter.getCount();
+   }
+
    public int getDac() {
-      if (_linearCounter.getCount() == 0) {
-         return 0;
-      }
-      if (_lengthCounter.getCount() == 0) {
-         return 0;
+      if (_timerRawPeriod == 0x0000 || _timerRawPeriod == 0x0100) {
+         return 7;
       }
 
       return _sequencer.getCurrentValue();

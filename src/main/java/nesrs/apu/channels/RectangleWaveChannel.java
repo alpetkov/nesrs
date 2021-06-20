@@ -58,14 +58,14 @@ public class RectangleWaveChannel {
 
    public void writeFineTuneRegister(int value) {
       _timerRawPeriod = (_timerRawPeriod & 0x0700) | value;
-      _timer.setPeriod((_timerRawPeriod + 1) << 1);
+      _timer.setPeriod(_timerRawPeriod + 1);
    }
 
    public void writeCoarseTuneRegister(int value) {
       _lengthCounter.setCount(value >> 3);
 
       _timerRawPeriod = ((value << 8) & 0x0700) | (_timerRawPeriod & 0x00FF);
-      _timer.setPeriod((_timerRawPeriod + 1) << 1);
+      _timer.setPeriod(_timerRawPeriod + 1);
 
       _dutyCycleSequencer.reset();
 
@@ -81,7 +81,7 @@ public class RectangleWaveChannel {
    }
 
    public int getDac() {
-      if (_lengthCounter.getCount() == 0) {
+      if (_sweepUnit.getStatus().shouldSilenceDac) {
          return 0;
       }
 
@@ -89,7 +89,7 @@ public class RectangleWaveChannel {
          return 0;
       }
 
-      if (_sweepUnit.getStatus().shouldSilenceDac) {
+      if (_lengthCounter.getCount() == 0) {
          return 0;
       }
 

@@ -33,15 +33,15 @@ public class RectangleWaveChannelTest {
       rwc1.writeFineTuneRegister(0xFE);
       rwc1.writeCoarseTuneRegister(0x07);
       Assert.assertEquals(0x07FE, rwc1.getChannelPeriod());
-      Assert.assertEquals(0x0FFE, rwc1.getTimer().getPeriod());
+      Assert.assertEquals(0x07FF, rwc1.getTimer().getPeriod());
 
       rwc1.writeFineTuneRegister(0x13);
       Assert.assertEquals(0x0713, rwc1.getChannelPeriod());
-      Assert.assertEquals(0x0E28, rwc1.getTimer().getPeriod());
+      Assert.assertEquals(0x0714, rwc1.getTimer().getPeriod());
 
       rwc1.writeCoarseTuneRegister(0x01);
       Assert.assertEquals(0x0113, rwc1.getChannelPeriod());
-      Assert.assertEquals(0x0228, rwc1.getTimer().getPeriod());
+      Assert.assertEquals(0x0114, rwc1.getTimer().getPeriod());
    }
 
    @Test
@@ -52,45 +52,45 @@ public class RectangleWaveChannelTest {
 
       // Set channel period
       rwc1.writeFineTuneRegister(0x01);
-      Assert.assertEquals(0x0004, rwc1.getTimer().getPeriod());
+      Assert.assertEquals(0x0002, rwc1.getTimer().getPeriod());
 
       // 0, 1, 1, 1, 1, 0, 0, 0
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 2; i++) {
          rwc1.clockTimer();
       }
       Assert.assertEquals(0, rwc1.getDutyCycleSequencer().getCurrentValue());
 
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 2; i++) {
          rwc1.clockTimer();
       }
       Assert.assertEquals(1, rwc1.getDutyCycleSequencer().getCurrentValue());
 
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 2; i++) {
          rwc1.clockTimer();
       }
       Assert.assertEquals(1, rwc1.getDutyCycleSequencer().getCurrentValue());
 
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 2; i++) {
          rwc1.clockTimer();
       }
       Assert.assertEquals(1, rwc1.getDutyCycleSequencer().getCurrentValue());
 
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 2; i++) {
          rwc1.clockTimer();
       }
       Assert.assertEquals(1, rwc1.getDutyCycleSequencer().getCurrentValue());
 
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 2; i++) {
          rwc1.clockTimer();
       }
       Assert.assertEquals(0, rwc1.getDutyCycleSequencer().getCurrentValue());
 
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 2; i++) {
          rwc1.clockTimer();
       }
       Assert.assertEquals(0, rwc1.getDutyCycleSequencer().getCurrentValue());
 
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 2; i++) {
          rwc1.clockTimer();
       }
       Assert.assertEquals(0, rwc1.getDutyCycleSequencer().getCurrentValue());

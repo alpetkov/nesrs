@@ -27,7 +27,7 @@ public class FrameSequencer {
    //     e e e e -   192 Hz
 
    // 1.79MHz / DIVIDER_PERIOD = 240Hz
-   private static final int DIVIDER_PERIOD = (14916/2); // TODO there is fraction here.
+   private static final int DIVIDER_PERIOD = (14915/2); // TODO there is fraction here.
 
    private Divider _divider;
    private Sequencer _sequencer;

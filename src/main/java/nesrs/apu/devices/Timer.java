@@ -9,8 +9,6 @@ public class Timer extends Divider {
    @Override
    public void setPeriod(int period) {
       _period = period;
-      if (_counter == 0) {
-         _counter = _period;
-      }
+      reset();  
    }
 }
