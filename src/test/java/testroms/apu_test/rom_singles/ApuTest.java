@@ -13,8 +13,8 @@ import testroms.AbstractRomTest;
 @RunWith(Parameterized.class)
 public class ApuTest extends AbstractRomTest {
 
-   private final String NES_PATH = "/apu_test/rom_singles/";
-   private final String PPM_PATH = "/testroms" + NES_PATH;
+   private final String NES_PATH = "/testroms/apu_test/rom_singles/";
+   private final String PPM_PATH = NES_PATH;
    
    @Parameters(name = "ApuTest({0})")
    public static Collection<Object[]> data() {
@@ -43,6 +43,6 @@ public class ApuTest extends AbstractRomTest {
    
    @Test
    public void testApu() throws Exception {
-      testRom(NES_PATH + _romName, PPM_PATH + _ppmName, _seconds);
+      testRom(NES_PATH + _romName,  PPM_PATH + _ppmName, _seconds);
    }
 }

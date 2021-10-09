@@ -13,7 +13,7 @@ import testroms.AbstractRomTest;
 @RunWith(Parameterized.class)
 public class PpuTest extends AbstractRomTest {
 
-   private final String NES_PATH = "/blargg_ppu_tests_2005.09.15b/";
+   private final String NES_PATH = "/testroms" + "/blargg_ppu_tests_2005.09.15b/";
    private final String PPM_PATH = "/testroms" + "/blargg_ppu_tests_2005_09_15b/";
 
    @Parameters(name = "PpuTest({0})")

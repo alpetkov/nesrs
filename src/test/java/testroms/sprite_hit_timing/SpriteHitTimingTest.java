@@ -13,8 +13,8 @@ import testroms.AbstractRomTest;
 @RunWith(Parameterized.class)
 public class SpriteHitTimingTest extends AbstractRomTest {
 
-   private final String NES_PATH = "/sprite_hit_timing/";
-   private final String PPM_PATH = "/testroms" + NES_PATH;
+   private final String NES_PATH = "/testroms/sprite_hit_timing/";
+   private final String PPM_PATH = NES_PATH;
 
    @Parameters(name = "SpriteHitTimingTest({0})")
    public static Collection<Object[]> data() {

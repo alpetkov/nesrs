@@ -73,7 +73,7 @@ public class Nestest extends TestCase {
 	}
 
 	private Cartridge loadNestestCartridge() throws Exception {
-		File file = new File(this.getClass().getResource("/nestest/nestest.nes").toURI());
+		File file = new File(this.getClass().getResource("/testroms/nestest/nestest.nes").toURI());
 
 		FileInputStream in = new FileInputStream(file);
 
@@ -88,7 +88,7 @@ public class Nestest extends TestCase {
 
 	private static String[] parseNestestLogFile() throws Exception {
 		BufferedReader reader = new BufferedReader(new FileReader(
-				new File(Nestest.class.getResource("/nestest/nestest.log").toURI())));
+				new File(Nestest.class.getResource("/testroms/nestest/nestest.log").toURI())));
 
 		ArrayList<String> nestestLogLines = new ArrayList<String>(8991);
 

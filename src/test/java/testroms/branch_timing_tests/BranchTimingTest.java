@@ -13,8 +13,8 @@ import testroms.AbstractRomTest;
 @RunWith(Parameterized.class)
 public class BranchTimingTest extends AbstractRomTest {
 
-   private final String NES_PATH = "/branch_timing_tests/";
-   private final String PPM_PATH = "/testroms" + NES_PATH;
+   private final String NES_PATH = "/testroms/branch_timing_tests/";
+   private final String PPM_PATH = NES_PATH;
 
    @Parameters(name = "BranchTimingTest({0})")
    public static Collection<Object[]> data() {

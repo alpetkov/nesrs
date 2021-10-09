@@ -13,8 +13,8 @@ import testroms.AbstractRomTest;
 @RunWith(Parameterized.class)
 public class SpriteOverflowTest extends AbstractRomTest {
 
-   private final String NES_PATH = "/sprite_overflow_tests/";
-   private final String PPM_PATH = "/testroms" + NES_PATH;
+   private final String NES_PATH = "/testroms/sprite_overflow_tests/";
+   private final String PPM_PATH = NES_PATH;
    
    @Parameters(name = "SpriteOverflowTest({0})")
    public static Collection<Object[]> data() {
