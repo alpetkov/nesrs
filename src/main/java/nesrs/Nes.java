@@ -186,7 +186,7 @@ public class Nes implements Runnable {
          
          start = System.nanoTime();
          // PPU
-         int ppuCycles = cpuCycles + cpuCycles + cpuCycles; // TODO cycles between ppu and cpu depends on nes type
+         int ppuCycles = 3 * cpuCycles; // TODO cycles between ppu and cpu depends on nes type
          _ppu.executeCycles(ppuCycles);
          end = System.nanoTime();
          ppuTime += (end - start);

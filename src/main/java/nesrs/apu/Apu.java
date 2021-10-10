@@ -94,9 +94,8 @@ public class Apu implements ApuPin {
             }
          }
 
+         // Send audio
          if (_audioOutListener != null) {
-
-            // Send audio
             _audioOutListener.handleAudio(
                     _rectangleWaveChannel1.getDac(),
                     _rectangleWaveChannel2.getDac(),

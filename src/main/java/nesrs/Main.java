@@ -27,6 +27,7 @@ public class Main {
    }
 
    public static class Application {
+
       public void start(byte[] nesRom) throws LineUnavailableException {
          JFrame window = new JFrame();
 
@@ -43,6 +44,9 @@ public class Main {
          StandardController controller1 = new StandardController(true);
          window.addKeyListener(new StandardControllerKeyListener(controller1));
 
+         // Create audio player.
+         AudioPlayer audioPlayer = new AudioPlayer();
+
          // Show window
          window.pack();
          window.setLocationRelativeTo(null);
@@ -50,10 +54,6 @@ public class Main {
 
          // Set page-flip buffer strategy.
          videoPlayer.createBufferStrategy(2);
-
-         // Create audio player.
-         AudioPlayer audioPlayer = new AudioPlayer();
-//         AudioPlayer audioPlayer = null;
 
          // Start NES
          Nes nes = new Nes(nesRom, videoPlayer, audioPlayer, controller1);

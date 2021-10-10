@@ -8,62 +8,42 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 import nesrs.apu.AudioOutListener;
+import nesrs.apu.devices.Mixer;
 
 public class AudioPlayer implements AudioOutListener, AutoCloseable {
    public static final int BUFFER_SIZE = 2048 * 2;
 
    public static final int SAMPLE_RATE = 44100;
    public static final int BIT_DEPTH = 16;
+   public static final boolean SIGNED = true;
 
-   private static final AudioFormat AUDIO_FORMAT = new AudioFormat(
+   private static final AudioFormat PCM = new AudioFormat(
          SAMPLE_RATE,
-         16,
+         BIT_DEPTH,
          1, // Mono
-         true, // Signed
+         SIGNED, // Signed
          true);
-
-   private static int[] SQUARE_OUT_TABLE;
-   private static int[] TND_OUT_TABLE;
-
-   // Init lookup tables for Mixer.
-   static {
-      SQUARE_OUT_TABLE = new int[31];
-      SQUARE_OUT_TABLE[0] = 0;
-      for (int i = 1; i < 31; i++) {
-         SQUARE_OUT_TABLE[i] = (int)((95.52 / (8128.0 / i + 100)) * Short.MAX_VALUE);
-      }
-
-      TND_OUT_TABLE = new int[203];
-      TND_OUT_TABLE[0] = 0;
-      for (int i = 1; i < 203; i++) {
-         TND_OUT_TABLE[i] = (int)((163.67 / (24329.0 / i + 100)) * Short.MAX_VALUE);
-      }
-   }
-
-   private byte[] _audioBuffer = new byte[735*2];
-   private int _audioBufferIndex = 0;
-
-   private byte[] _audioSamples = new byte[735*2];
 
    private int _currentCycleInSample = 0;
 
+   private final Mixer mixer;
+
+   private final byte[] _audioBuffer = new byte[735*2]; // (44100 / 60(fps))  * 2(bytes)
+   private int _audioBufferIndex = 0;
+   private byte[] _audioSamples = new byte[735*2]; // (44100 / 60(fps))  * 2(bytes)
    private SourceDataLine _sdl;
 
    public AudioPlayer() throws LineUnavailableException {
-      _sdl = AudioSystem.getSourceDataLine(AUDIO_FORMAT);
+      mixer = new Mixer(Short.MAX_VALUE * 2 + 1, SIGNED);
 
-      _sdl.open(AUDIO_FORMAT, BUFFER_SIZE);
+      _sdl = AudioSystem.getSourceDataLine(PCM);
+
+      _sdl.open(PCM, BUFFER_SIZE);
       _sdl.start();
    }
 
    @Override
    public void handleAudio(int rec1Dac, int rec2Dac, int triDac, int randomDac, int dmcDac) {
-//      rec1Dac = 0;
-//      rec2Dac = 0;
-//      triDac = 0;
-      randomDac = 0;
-//      dmcDac = 0;
-
       _currentCycleInSample++;
 
       // Downsample to 44.1KHz hence pick 1 sample every 40 NES cpu cycles.
@@ -72,9 +52,7 @@ public class AudioPlayer implements AudioOutListener, AutoCloseable {
       }
 
       // Mix
-      int routAudio = SQUARE_OUT_TABLE[rec1Dac + rec2Dac];
-      int coutAudio = TND_OUT_TABLE[3 * triDac + 2 * randomDac + dmcDac];
-      int sample = routAudio + coutAudio;
+      short sample = (short)mixer.mix(rec1Dac, rec2Dac, triDac, randomDac, dmcDac);
 
       if (_audioBufferIndex == _audioBuffer.length) {
          _audioBufferIndex = 0;

@@ -27,3 +27,8 @@ hs_err_pid*
 # ide
 .classpath
 .project
+
+*.nes
+*.ppm
+.idea/**
+*.iml
